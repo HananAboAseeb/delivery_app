@@ -44,12 +44,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       await storage.write(key: 'access_token', value: token);
 
       // Step 3: Fetch the real profile using the new token
-      final profileResponse = await apiClient.dio.get(
-        '/api/account/my-profile',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
-      );
+      Map<String, dynamic>? profileData;
+      try {
+        final profileResponse = await apiClient.dio.get(
+          '/api/account/my-profile',
+          options: Options(headers: {'Authorization': 'Bearer $token'}),
+        );
+        profileData = profileResponse.data is Map ? profileResponse.data : null;
+      } catch (e) {
+        // We will not crash the login if my-profile returns 500 or 404
+        profileData = null;
+      }
 
-      final profileData = profileResponse.data;
+      // Use profile data if available, otherwise just use the entered username
       final name    = profileData?['userName'] ?? profileData?['name'] ?? username;
       final email   = profileData?['email'] ?? '';
       final phone   = profileData?['phoneNumber'] ?? username;
@@ -69,7 +76,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         walletId: '',
       );
     } on DioException catch (e) {
-      throw ServerException(message: 'Login failed: ${e.response?.statusCode} - ${e.message}');
+      throw ServerException(message: 'Token Error: ${e.response?.statusCode} - ${e.message}');
     } catch (e) {
       if (e is ServerException) rethrow;
       throw ServerException(message: 'Login failed: $e');
