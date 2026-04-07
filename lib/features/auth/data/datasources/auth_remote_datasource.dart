@@ -90,21 +90,26 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         '/api/UserManagement/cre-tech-register/register',
         data: {
           'userName': name,
+          'email': email,
+          'emailAddress': email, // Add both just in case ABP expects emailAddress
           'phoneNumber': phone,
           'password': password,
         },
       );
       
-      return UserModel(
-        id: 'new_id',
-        name: name,
-        email: email,
-        phone: phone,
-        walletBalance: 0.0,
-        walletId: '',
-      );
+      // Auto-login to fetch token and cache the new user profile correctly
+      return await login(phone, password);
     } on DioException catch (e) {
-      throw ServerException(message: 'Register failed: ${e.response?.statusCode} - ${e.message}');
+      final data = e.response?.data;
+      String serverMessage = e.message ?? '';
+      if (data != null) {
+        if (data is Map && data['error'] != null) {
+          serverMessage = data['error']['message'] ?? data['error']['details'] ?? data.toString();
+        } else {
+          serverMessage = data.toString();
+        }
+      }
+      throw ServerException(message: 'Register failed: ${e.response?.statusCode} - $serverMessage');
     } catch (e) {
       throw ServerException(message: 'Register failed: $e');
     }

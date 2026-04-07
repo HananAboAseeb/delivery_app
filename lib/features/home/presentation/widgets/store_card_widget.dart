@@ -49,9 +49,11 @@ class StoreCardWidget extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    'https://picsum.photos/200/150?random=$name',
-                    fit: BoxFit.cover,
+                  Container(
+                    color: theme.primaryColor.withOpacity(0.1),
+                    child: Center(
+                      child: Icon(Icons.storefront, size: 40, color: theme.primaryColor),
+                    ),
                   ),
                   
                   // Rating Badge

@@ -25,7 +25,7 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
         "id": "p1",
         "name": "دجاج بروست",
         "description": "دجاج مقلي مقرمش بتتبيلة خاصة",
-        "image": "https://picsum.photos/200/150?random=31",
+        "image": "",
         "variants": [
           {"label": "ربع", "price": 1500},
           {"label": "نصف", "price": 2500},
@@ -36,7 +36,7 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
         "id": "p2",
         "name": "برجر كلاسيك",
         "description": "لحم بقري طازج مع خضار طازجة",
-        "image": "https://picsum.photos/200/150?random=32",
+        "image": "",
         "variants": [
           {"label": "صغير", "price": 800},
           {"label": "وسط", "price": 1200},
@@ -47,7 +47,7 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
         "id": "p3",
         "name": "شاورما عربي",
         "description": "شاورما لحم أو دجاج مع صوص بيت",
-        "image": "https://picsum.photos/200/150?random=33",
+        "image": "",
         "variants": [
           {"label": "عادي", "price": 700},
           {"label": "كبير", "price": 1000},
@@ -57,7 +57,7 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
         "id": "p4",
         "name": "بيتزا مارغريتا",
         "description": "بيتزا بالجبن والصلصة الإيطالية",
-        "image": "https://picsum.photos/200/150?random=34",
+        "image": "",
         "variants": [
           {"label": "صغيرة", "price": 1200},
           {"label": "وسط", "price": 2000},
@@ -101,9 +101,11 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    'https://picsum.photos/600/300?random=10',
-                    fit: BoxFit.cover,
+                  Container(
+                    color: Theme.of(context).primaryColor.withOpacity(0.1),
+                    child: Center(
+                      child: Icon(Icons.store, size: 80, color: Theme.of(context).primaryColor),
+                    ),
                   ),
                   Container(
                     decoration: const BoxDecoration(

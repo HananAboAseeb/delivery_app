@@ -65,7 +65,7 @@ class _ProfileView extends StatelessWidget {
                         CircleAvatar(
                           radius: 50,
                           backgroundColor: Colors.white,
-                          backgroundImage: NetworkImage(profile.avatarUrl),
+                          backgroundImage: profile.avatarUrl.isNotEmpty ? NetworkImage(profile.avatarUrl) : null,
                           onBackgroundImageError: (_, __) {},
                           child: Text(
                             profile.name.isNotEmpty ? profile.name[0] : 'أ',

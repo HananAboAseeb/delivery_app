@@ -17,7 +17,7 @@ class UserProfile extends Equatable {
         name: 'أحمد',
         email: 'ahmed@example.com',
         phone: '0500000000',
-        avatarUrl: 'https://i.pravatar.cc/150',
+        avatarUrl: '',
       );
 
   UserProfile copyWith({

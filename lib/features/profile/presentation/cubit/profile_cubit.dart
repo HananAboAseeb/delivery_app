@@ -32,7 +32,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       name:      name   ?? '',
       email:     email  ?? '',
       phone:     phone  ?? '',
-      avatarUrl: avatar ?? 'https://i.pravatar.cc/150',
+      avatarUrl: avatar ?? '',
     );
 
     emit(ProfileLoaded(profile));
@@ -75,7 +75,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   }) async {
     final current = (state is ProfileLoaded)
         ? (state as ProfileLoaded).profile
-        : UserProfile(name: name, email: email, phone: phone, avatarUrl: avatarUrl ?? 'https://i.pravatar.cc/150');
+        : UserProfile(name: name, email: email, phone: phone, avatarUrl: avatarUrl ?? '');
 
     final updated = current.copyWith(
       name:      name,
@@ -115,6 +115,6 @@ class ProfileCubit extends Cubit<ProfileState> {
     await _storage.delete(key: _keyEmail);
     await _storage.delete(key: _keyPhone);
     await _storage.delete(key: _keyAvatar);
-    emit(ProfileLoaded(UserProfile(name: '', email: '', phone: '', avatarUrl: 'https://i.pravatar.cc/150')));
+    emit(const ProfileLoaded(UserProfile(name: '', email: '', phone: '', avatarUrl: '')));
   }
 }
