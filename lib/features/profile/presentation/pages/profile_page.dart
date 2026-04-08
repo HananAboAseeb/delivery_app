@@ -65,10 +65,11 @@ class _ProfileView extends StatelessWidget {
                         CircleAvatar(
                           radius: 50,
                           backgroundColor: Colors.white,
-                          backgroundImage: profile.avatarUrl.isNotEmpty ? NetworkImage(profile.avatarUrl) : null,
-                          onBackgroundImageError: (_, __) {},
+                          backgroundImage: profile.avatarUrl.isNotEmpty
+                              ? NetworkImage(profile.avatarUrl)
+                              : null,
                           child: Text(
-                            profile.name.isNotEmpty ? profile.name[0] : 'أ',
+                            profile.name.isNotEmpty ? profile.name[0].toUpperCase() : 'أ',
                             style: TextStyle(fontSize: 36, color: theme.primaryColor, fontWeight: FontWeight.bold),
                           ),
                         ),

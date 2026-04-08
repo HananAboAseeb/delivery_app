@@ -1,5 +1,43 @@
 import 'package:equatable/equatable.dart';
 
+class StoreItemGroupEntity extends Equatable {
+  final String groupId;
+  final String groupName;
+
+  const StoreItemGroupEntity({
+    required this.groupId,
+    required this.groupName,
+  });
+
+  @override
+  List<Object?> get props => [groupId, groupName];
+}
+
+class StoreGroupEntity extends Equatable {
+  final String id;
+  final String? theNumber;
+  final String? name;
+  final String? foreignName;
+  final bool isActive;
+
+  const StoreGroupEntity({
+    required this.id,
+    this.theNumber,
+    this.name,
+    this.foreignName,
+    required this.isActive,
+  });
+
+  @override
+  List<Object?> get props => [
+        id,
+        theNumber,
+        name,
+        foreignName,
+        isActive,
+      ];
+}
+
 class StoreEntity extends Equatable {
   final String id;
   final String theNumber;
@@ -9,6 +47,7 @@ class StoreEntity extends Equatable {
   final String? imageUrl;
   final double? latitude;
   final double? longitude;
+  final List<StoreItemGroupEntity> storesItemGroups;
 
   const StoreEntity({
     required this.id,
@@ -19,6 +58,7 @@ class StoreEntity extends Equatable {
     this.imageUrl,
     this.latitude,
     this.longitude,
+    this.storesItemGroups = const [],
   });
 
   @override
@@ -31,6 +71,7 @@ class StoreEntity extends Equatable {
         imageUrl,
         latitude,
         longitude,
+        storesItemGroups,
       ];
 }
 

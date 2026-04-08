@@ -10,15 +10,16 @@ class GetProductsByStoreUseCase implements UseCase<List<ProductEntity>, GetProdu
 
   @override
   Future<List<ProductEntity>> call(GetProductsByStoreParams params) async {
-    return await repository.getProductsByStore(params.storeId);
+    return await repository.getProductsByStore(params.storeId, itemGroupId: params.itemGroupId);
   }
 }
 
 class GetProductsByStoreParams extends Equatable {
   final String storeId;
+  final String? itemGroupId;
 
-  const GetProductsByStoreParams({required this.storeId});
+  const GetProductsByStoreParams({required this.storeId, this.itemGroupId});
 
   @override
-  List<Object?> get props => [storeId];
+  List<Object?> get props => [storeId, itemGroupId];
 }

@@ -1,4 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:my_store/core/network/api_client.dart';
+import 'package:my_store/features/store/data/datasources/store_remote_datasource.dart';
+import 'package:my_store/features/store/data/repositories/store_repository_impl.dart';
+import 'package:my_store/features/store/domain/usecases/get_store_by_id_usecase.dart';
+
+import 'package:my_store/features/product/data/datasources/product_remote_datasource.dart';
+import 'package:my_store/features/product/data/repositories/product_repository_impl.dart';
+import 'package:my_store/features/product/domain/usecases/get_products_by_store_usecase.dart';
+import 'package:my_store/features/product/domain/entities/product_entity.dart';
+
+import '../cubit/store_details_cubit.dart';
 
 class StoreDetailsPage extends StatefulWidget {
   final String storeId;
@@ -11,61 +24,7 @@ class StoreDetailsPage extends StatefulWidget {
 class _StoreDetailsPageState extends State<StoreDetailsPage> {
   static const Color _primary = Color(0xFFFF4500);
 
-  final Map<String, dynamic> _store = {
-    "id": "1",
-    "name": "مطعم القلعة",
-    "rating": 4.8,
-    "ratingCount": 2223,
-    "distance": "0.85 كم",
-    "deliveryTime": "55 دقيقة",
-    "openingHours": "7:30 ص - 11:00 م",
-    "deliveryOptions": ["استلم بنفسك", "تفويض", "توصيل"],
-    "products": [
-      {
-        "id": "p1",
-        "name": "دجاج بروست",
-        "description": "دجاج مقلي مقرمش بتتبيلة خاصة",
-        "image": "",
-        "variants": [
-          {"label": "ربع", "price": 1500},
-          {"label": "نصف", "price": 2500},
-          {"label": "حبة", "price": 4500},
-        ],
-      },
-      {
-        "id": "p2",
-        "name": "برجر كلاسيك",
-        "description": "لحم بقري طازج مع خضار طازجة",
-        "image": "",
-        "variants": [
-          {"label": "صغير", "price": 800},
-          {"label": "وسط", "price": 1200},
-          {"label": "كبير", "price": 1800},
-        ],
-      },
-      {
-        "id": "p3",
-        "name": "شاورما عربي",
-        "description": "شاورما لحم أو دجاج مع صوص بيت",
-        "image": "",
-        "variants": [
-          {"label": "عادي", "price": 700},
-          {"label": "كبير", "price": 1000},
-        ],
-      },
-      {
-        "id": "p4",
-        "name": "بيتزا مارغريتا",
-        "description": "بيتزا بالجبن والصلصة الإيطالية",
-        "image": "",
-        "variants": [
-          {"label": "صغيرة", "price": 1200},
-          {"label": "وسط", "price": 2000},
-          {"label": "كبيرة", "price": 2800},
-        ],
-      },
-    ],
-  };
+  late final StoreDetailsCubit _cubit;
 
   // Tracks selected variant index per product
   final Map<String, int> _selectedVariants = {};
@@ -75,192 +34,269 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
   @override
   void initState() {
     super.initState();
-    for (final p in _store['products'] as List) {
-      _selectedVariants[p['id']] = 0;
-      _quantities[p['id']] = 1;
-    }
+    
+    final apiClient = ApiClient();
+    final storeRemoteDataSource = StoreRemoteDataSourceImpl(apiClient: apiClient);
+    final storeRepository = StoreRepositoryImpl(remoteDataSource: storeRemoteDataSource);
+
+    final productRemoteDataSource = ProductRemoteDataSourceImpl(apiClient: apiClient);
+    final productRepository = ProductRepositoryImpl(remoteDataSource: productRemoteDataSource);
+
+    _cubit = StoreDetailsCubit(
+      getStoreByIdUseCase: GetStoreByIdUseCase(storeRepository),
+      getProductsByStoreUseCase: GetProductsByStoreUseCase(productRepository),
+    );
+
+    _cubit.loadStoreDetails(widget.storeId);
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final products = _store['products'] as List;
+    return BlocProvider.value(
+      value: _cubit,
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade50,
+        body: BlocBuilder<StoreDetailsCubit, StoreDetailsState>(
+          builder: (context, state) {
+            if (state.isLoadingStore) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-    return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          // ── Hero AppBar ──────────────────────────────────────────
-          SliverAppBar(
-            expandedHeight: 240,
-            pinned: true,
-            backgroundColor: _primary,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Container(
-                    color: Theme.of(context).primaryColor.withOpacity(0.1),
-                    child: Center(
-                      child: Icon(Icons.store, size: 80, color: Theme.of(context).primaryColor),
-                    ),
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.black54, Colors.transparent],
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.favorite_border, color: Colors.white),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.share_outlined, color: Colors.white),
-                onPressed: () {},
-              ),
-            ],
-          ),
+            if (state.storeError != null || state.store == null) {
+              return Center(
+                child: Text('خطأ في تحميل المتجر: ${state.storeError ?? "متجر غير موجود"}'),
+              );
+            }
 
-          // ── Store Info Card ──────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 16, offset: const Offset(0, 6)),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Store name
-                  Text(
-                    _store['name'],
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
-                  ),
-                  const SizedBox(height: 10),
+            final store = state.store!;
+            final products = state.products;
 
-                  // Rating row
-                  Row(
-                    children: [
-                      ...List.generate(5, (i) => Icon(
-                        i < _store['rating'].floor() ? Icons.star_rounded : Icons.star_border_rounded,
-                        color: Colors.amber,
-                        size: 20,
-                      )),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${_store['rating']} (${_store['ratingCount']})',
-                        style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  const Divider(),
-                  const SizedBox(height: 12),
-
-                  // Delivery Options Pills
-                  Row(
-                    children: [
-                      for (final option in _store['deliveryOptions'] as List)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: _primary.withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: _primary.withOpacity(0.3)),
-                            ),
-                            child: Text(
-                              option,
-                              style: const TextStyle(fontSize: 12, color: _primary, fontWeight: FontWeight.bold),
+            return CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                // ── Hero AppBar ──────────────────────────────────────────
+                SliverAppBar(
+                  expandedHeight: 240,
+                  pinned: true,
+                  backgroundColor: _primary,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Container(
+                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          child: store.imageUrl != null && store.imageUrl!.isNotEmpty
+                              ? Image.network(store.imageUrl!, fit: BoxFit.cover, errorBuilder: (_,__,___) => Center(child: Icon(Icons.store, size: 80, color: Theme.of(context).primaryColor)))
+                              : Center(child: Icon(Icons.store, size: 80, color: Theme.of(context).primaryColor)),
+                        ),
+                        Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.black54, Colors.transparent],
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
                             ),
                           ),
                         ),
-                      const Spacer(),
-                      Icon(Icons.access_time, color: Colors.grey.shade500, size: 16),
-                      const SizedBox(width: 4),
-                      Text(
-                        _store['deliveryTime'],
-                        style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w600, fontSize: 13),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Icon(Icons.location_on, color: _primary, size: 16),
-                      const SizedBox(width: 4),
-                      Text(_store['distance'], style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                      const SizedBox(width: 16),
-                      Icon(Icons.schedule, color: Colors.grey.shade500, size: 16),
-                      const SizedBox(width: 4),
-                      Text(_store['openingHours'], style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // ── Menu Title ───────────────────────────────────────────
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Text('قائمة الطعام', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            ),
-          ),
-
-          // ── Product List ─────────────────────────────────────────
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 40),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _ProductCard(
-                  product: products[index] as Map<String, dynamic>,
-                  selectedVariantIndex: _selectedVariants[products[index]['id']] ?? 0,
-                  quantity: _quantities[products[index]['id']] ?? 1,
-                  onVariantChanged: (variantIdx) {
-                    setState(() => _selectedVariants[products[index]['id']] = variantIdx);
-                  },
-                  onQuantityChanged: (qty) {
-                    setState(() => _quantities[products[index]['id']] = qty);
-                  },
-                  onAddToCart: () {
-                    final product = products[index] as Map<String, dynamic>;
-                    final variantIdx = _selectedVariants[product['id']] ?? 0;
-                    final qty = _quantities[product['id']] ?? 1;
-                    final variant = (product['variants'] as List)[variantIdx];
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('تمت إضافة $qty ${product['name']} (${variant['label']}) إلى السلة'),
-                        backgroundColor: Colors.green.shade600,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                    );
-                  },
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.favorite_border, color: Colors.white),
+                      onPressed: () {},
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.share_outlined, color: Colors.white),
+                      onPressed: () {},
+                    ),
+                  ],
                 ),
-                childCount: products.length,
-              ),
-            ),
-          ),
-        ],
+
+                // ── Store Info Card ──────────────────────────────────────
+                SliverToBoxAdapter(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 16, offset: const Offset(0, 6)),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Store name
+                        Text(
+                          store.name,
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Rating row
+                        Row(
+                          children: [
+                            ...List.generate(5, (i) => Icon(
+                              i < 4 ? Icons.star_rounded : Icons.star_border_rounded,
+                              color: Colors.amber,
+                              size: 20,
+                            )),
+                            const SizedBox(width: 8),
+                            Text(
+                              '4.5 (100+)', // Mocked rating for now, update when API supports it
+                              style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        const Divider(),
+                        const SizedBox(height: 12),
+
+                        // Delivery Options Pills
+                        Row(
+                          children: [
+                            for (final option in ["توصيل"]) // Mock delivery options
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: _primary.withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: _primary.withOpacity(0.3)),
+                                  ),
+                                  child: Text(
+                                    option,
+                                    style: const TextStyle(fontSize: 12, color: _primary, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            const Spacer(),
+                            Icon(Icons.access_time, color: Colors.grey.shade500, size: 16),
+                            const SizedBox(width: 4),
+                            Text(
+                              "20-30 دقيقة", // Mock time
+                              style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w600, fontSize: 13),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Icon(Icons.location_on, color: _primary, size: 16),
+                            const SizedBox(width: 4),
+                            // Optional distance (not present in StoreEntity yet)
+                            Text("1.5 كم", style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                            const SizedBox(width: 16),
+                            Icon(Icons.schedule, color: Colors.grey.shade500, size: 16),
+                            const SizedBox(width: 4),
+                            Text("7:00 ص - 11:00 م", style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // ── Item Groups Horizontal Tabs ───────────────────────────────────────────
+                if (state.itemGroups.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 50,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: state.itemGroups.length + 1,
+                        itemBuilder: (context, index) {
+                          final isAll = index == 0;
+                          final group = isAll ? null : state.itemGroups[index - 1];
+                          final groupName = isAll ? "جميع الأصناف" : (group?.groupName ?? 'Unknown');
+                          final groupId = isAll ? null : group?.groupId;
+                          final isSelected = state.selectedItemGroupId == groupId;
+
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0, top: 8.0, bottom: 8.0),
+                            child: FilterChip(
+                              label: Text(groupName, style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontWeight: FontWeight.bold)),
+                              selected: isSelected,
+                              onSelected: (_) => _cubit.selectTab(store.id, groupId),
+                              backgroundColor: Colors.grey.shade100,
+                              selectedColor: _primary,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: isSelected ? _primary : Colors.grey.shade300)),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  )
+                else
+                   const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      child: Text('جميع الأصناف', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+
+                // ── Product List ─────────────────────────────────────────
+                if (state.isLoadingProducts)
+                  const SliverToBoxAdapter(
+                    child: Padding(padding: EdgeInsets.all(40), child: Center(child: CircularProgressIndicator())),
+                  )
+                else if (products.isEmpty)
+                  const SliverToBoxAdapter(
+                    child: Padding(padding: EdgeInsets.all(40), child: Center(child: Text("لا توجد منتجات هنا", style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)))),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 40),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final product = products[index];
+                          final prodIdStr = product.id.toString();
+                          return _ProductCard(
+                            product: product,
+                            // we pass 0 for variants because we don't have variants right now.
+                            // but later we can map it. For now, it stays as is to retain compilation
+                            selectedVariantIndex: _selectedVariants[prodIdStr] ?? 0,
+                            quantity: _quantities[prodIdStr] ?? 1,
+                            onVariantChanged: (variantIdx) {
+                              setState(() => _selectedVariants[prodIdStr] = variantIdx);
+                            },
+                            onQuantityChanged: (qty) {
+                              setState(() => _quantities[prodIdStr] = qty);
+                            },
+                            onAddToCart: () {
+                              final qty = _quantities[prodIdStr] ?? 1;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('تمت إضافة $qty ${product.name} إلى السلة'),
+                                  backgroundColor: Colors.green.shade600,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        childCount: products.length,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -268,7 +304,7 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
 
 // ── Product Card Widget ────────────────────────────────────────────────
 class _ProductCard extends StatelessWidget {
-  final Map<String, dynamic> product;
+  final ProductEntity product;
   final int selectedVariantIndex;
   final int quantity;
   final ValueChanged<int> onVariantChanged;
@@ -288,9 +324,10 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final variants = product['variants'] as List;
-    final selectedVariant = variants[selectedVariantIndex] as Map<String, dynamic>;
-    final totalPrice = selectedVariant['price'] * quantity;
+    // If no variants in Entity, we can use base product. 
+    // In Entity, we might have modifiers or variants later.
+    final price = product.unitPrice;
+    final totalPrice = price * quantity;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -308,7 +345,9 @@ class _ProductCard extends StatelessWidget {
           // Product image
           SizedBox(
             height: 160,
-            child: Image.network(product['image'], fit: BoxFit.cover),
+            child: product.imageUrl != null && product.imageUrl!.isNotEmpty
+                ? Image.network(product.imageUrl!, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: Colors.grey.shade200, child: Icon(Icons.fastfood, size: 50, color: Colors.grey.shade400)))
+                : Container(color: Colors.grey.shade200, child: Icon(Icons.fastfood, size: 50, color: Colors.grey.shade400)),
           ),
 
           Padding(
@@ -317,56 +356,14 @@ class _ProductCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Name + description
-                Text(product['name'], style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(product.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                Text(product['description'], style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+                // Since product doesn't have a description right now, we skip it
+                // You can add logic for description here when available in API
 
                 const SizedBox(height: 14),
 
-                // Variant selector
-                const Text('اختر الحجم:', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                const SizedBox(height: 8),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: List.generate(variants.length, (i) {
-                      final v = variants[i] as Map<String, dynamic>;
-                      final isSelected = i == selectedVariantIndex;
-                      return GestureDetector(
-                        onTap: () => onVariantChanged(i),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          margin: const EdgeInsets.only(left: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: isSelected ? _primary : Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: isSelected ? _primary : Colors.grey.shade300),
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                v['label'],
-                                style: TextStyle(
-                                  color: isSelected ? Colors.white : Colors.black87,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              Text(
-                                '${v['price']}',
-                                style: TextStyle(
-                                  color: isSelected ? Colors.white70 : Colors.grey.shade600,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
+                // the hasVariants block is removed because we mock hasVariants to false
 
                 const SizedBox(height: 16),
 

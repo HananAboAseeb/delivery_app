@@ -28,3 +28,11 @@ extension OrderModelX on OrderModel {
 extension StoreModelX on StoreModel {
   StoreEntity toEntity() => this;
 }
+
+extension StoreGroupModelX on StoreGroupModel {
+  StoreGroupEntity toEntity() => this;
+}
+
+extension StoreItemGroupModelX on StoreItemGroupModel {
+  StoreItemGroupEntity toEntity() => this;
+}

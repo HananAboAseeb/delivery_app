@@ -38,4 +38,23 @@ class StoreRepositoryImpl implements StoreRepository {
       throw Exception('Server error: ${e.message}');
     }
   }
+  @override
+  Future<List<StoreGroupEntity>> getStoreGroups() async {
+    try {
+      final models = await remoteDataSource.getStoreGroups();
+      return models.map((e) => e.toEntity()).toList();
+    } on ServerException catch (e) {
+      throw Exception('Server error: ${e.message}');
+    }
+  }
+
+  @override
+  Future<List<StoreEntity>> getStoresByGroup(String groupId) async {
+    try {
+      final models = await remoteDataSource.getStoresByGroup(groupId);
+      return models.map((e) => e.toEntity()).toList();
+    } on ServerException catch (e) {
+      throw Exception('Server error: ${e.message}');
+    }
+  }
 }

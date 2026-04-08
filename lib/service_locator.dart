@@ -1,6 +1,14 @@
 import 'package:get_it/get_it.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+// Store UseCases
+import 'features/store/domain/usecases/get_store_groups_usecase.dart';
+import 'features/store/domain/usecases/get_stores_by_group_usecase.dart';
+import 'features/store/domain/usecases/get_stores_usecase.dart';
+
+// HomeCubit
+import 'features/home/presentation/cubit/home_cubit.dart';
+
 // Core
 import 'core/network/api_client.dart';
 import 'core/network/signalr_service.dart';
@@ -100,6 +108,11 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton(() => CreateOrderUseCase(sl()));
   sl.registerLazySingleton(() => GetOrdersUseCase(sl()));
 
+  // Store UseCases
+  sl.registerLazySingleton(() => GetStoreGroupsUseCase(sl()));
+  sl.registerLazySingleton(() => GetStoresByGroupUseCase(sl()));
+  sl.registerLazySingleton(() => GetStoresUseCase(sl()));
+
   // 5. BLoCs / Cubits (Factories)
   sl.registerFactory(() => ThemeCubit(sl()));
   
@@ -126,5 +139,12 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => OrderBloc(
         createOrderUseCase: sl(),
         getOrdersUseCase: sl(),
+      ));
+
+  sl.registerFactory(() => HomeCubit(
+        getStoreGroupsUseCase: sl(),
+        getStoresByGroupUseCase: sl(),
+        getStoresUseCase: sl(),
+        productRepository: sl(),
       ));
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import 'package:my_store/service_locator.dart' as di;
 import 'package:my_store/features/home/presentation/cubit/home_cubit.dart';
 import 'package:my_store/features/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:my_store/features/favorites/presentation/cubit/favorites_state.dart';
@@ -17,6 +18,8 @@ import 'package:my_store/features/cart/presentation/pages/cart_page.dart';
 import 'package:my_store/features/profile/presentation/pages/profile_page.dart';
 import 'package:my_store/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:my_store/features/profile/presentation/cubit/profile_state.dart';
+
+import 'package:my_store/features/store/presentation/pages/store_details_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -35,8 +38,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
+    // Use DI to get shared instances with proper auth token
     _favoritesCubit = FavoritesCubit(const FlutterSecureStorage());
-    _homeCubit = HomeCubit();
+    _homeCubit = di.sl<HomeCubit>();
     _profileCubit = ProfileCubit(const FlutterSecureStorage());
   }
 
@@ -116,15 +121,16 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
-  final List<Map<String, dynamic>> _categories = [
-    {'name': 'مطاعم', 'icon': Icons.restaurant},
-    {'name': 'كوفي شوب', 'icon': Icons.local_cafe},
-    {'name': 'بقالة', 'icon': Icons.store},
-    {'name': 'صيدلية', 'icon': Icons.local_pharmacy},
-    {'name': 'تحف وهدايا', 'icon': Icons.card_giftcard},
-    {'name': 'ملابس', 'icon': Icons.checkroom},
-    {'name': 'إلكترونيات', 'icon': Icons.devices},
-  ];
+  IconData _getIconForCategory(String name) {
+    if (name.contains('مطاعم')) return Icons.restaurant;
+    if (name.contains('كوفي')) return Icons.local_cafe;
+    if (name.contains('بقالة') || name.contains('ماركت')) return Icons.store;
+    if (name.contains('صيدلية')) return Icons.local_pharmacy;
+    if (name.contains('هدايا')) return Icons.card_giftcard;
+    if (name.contains('ملابس')) return Icons.checkroom;
+    if (name.contains('إلكترونيات')) return Icons.devices;
+    return Icons.category;
+  }
 
   final List<String> _filters = ['الكل', 'الأقرب', 'الجديدة', 'المفضلة'];
 
@@ -255,23 +261,25 @@ class _HomeTabState extends State<HomeTab> {
                   // 3. Popular Categories Icons Row
                   SizedBox(
                     height: 90, // Natural height buffer for items inside
-                    child: ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      itemCount: _categories.length,
-                      itemBuilder: (context, index) {
-                        final cat = _categories[index];
-                        return CategoryIcon(
-                          label: cat['name'],
-                          icon: cat['icon'],
-                          isSelected: state.selectedCategory == cat['name'],
-                          onTap: () {
-                            context.read<HomeCubit>().selectCategory(cat['name']);
-                          },
-                        );
-                      },
-                    ),
+                    child: state.isLoadingGroups
+                        ? const Center(child: CircularProgressIndicator())
+                        : ListView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            itemCount: state.storeGroups.length,
+                            itemBuilder: (context, index) {
+                              final group = state.storeGroups[index];
+                              return CategoryIcon(
+                                label: group.name ?? 'Unknown',
+                                icon: _getIconForCategory(group.name ?? ''),
+                                isSelected: state.selectedGroupId == group.id,
+                                onTap: () {
+                                  context.read<HomeCubit>().selectCategory(group.name ?? '', group.id);
+                                },
+                              );
+                            },
+                          ),
                   ),
 
                   const SizedBox(height: 20),
@@ -310,13 +318,13 @@ class _HomeTabState extends State<HomeTab> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          state.selectedCategory == 'الكل' 
-                              ? (state.searchQuery.isNotEmpty ? 'النتائج البحث' : 'أماكن مقترحة')
-                              : 'النتائج البحث (${state.selectedCategory})',
+                          state.selectedCategory == 'الكل'
+                              ? (state.searchQuery.isNotEmpty ? 'نتائج البحث' : 'المنتجات المتاحة')
+                              : 'نتائج البحث (${state.selectedCategory})',
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '${state.stores.length} نتائج',
+                          '${state.stores.isNotEmpty ? state.stores.length : state.products.length} نتائج',
                           style: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.w600, fontSize: 13),
                         ),
                       ],
@@ -327,53 +335,258 @@ class _HomeTabState extends State<HomeTab> {
               ),
             ),
 
-            // 7. Results Grid Block
-            state.stores.isEmpty
-                ? SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(40.0),
-                      child: Center(
-                        child: Column(
-                          children: [
-                            Icon(Icons.search_off, size: 50, color: Colors.grey.shade300),
-                            const SizedBox(height: 12),
-                            Text(
-                              'لا توجد نتائج',
-                              style: TextStyle(color: Colors.grey.shade500, fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
-                : SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 32),
-                    sliver: SliverGrid(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.75, 
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final store = state.stores[index];
-                          return StoreCardWidget(
-                            name: store['name'],
-                            category: store['category'],
-                            distance: '${store['distance']} كم',
-                            rating: store['rating'].toDouble(),
-                            deliveryTime: store['time'],
-                            onTap: () {},
-                          );
-                        },
-                        childCount: state.stores.length,
-                      ),
-                    ),
-                  ),
+            // 7. Results Grid: Show stores if they exist, otherwise show products
+            _buildResultsGrid(state, theme),
           ],
         );
       },
+    );
+  }
+
+  Widget _buildResultsGrid(HomeState state, ThemeData theme) {
+    final primaryColor = const Color(0xFFFF4500);
+    
+    // If stores exist, show stores grid
+    if (state.stores.isNotEmpty) {
+      return SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 32),
+        sliver: SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.75,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+          ),
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final store = state.stores[index];
+              return StoreCardWidget(
+                name: store.name,
+                category: state.selectedCategory != 'الكل' ? state.selectedCategory : 'متجر',
+                distance: 'يحدد لاحقا',
+                rating: 4.5,
+                deliveryTime: '20-30 دقيقة',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StoreDetailsPage(storeId: store.id),
+                    ),
+                  );
+                },
+              );
+            },
+            childCount: state.stores.length,
+          ),
+        ),
+      );
+    }
+
+    // Show loading indicator
+    if (state.isLoadingStores || state.isLoadingProducts) {
+      return SliverToBoxAdapter(
+        child: Center(child: Padding(
+          padding: const EdgeInsets.all(40.0),
+          child: Column(
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(
+                'جاري جلب البيانات...',
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+              ),
+            ],
+          ),
+        )),
+      );
+    }
+
+    // No stores → show products if available
+    if (state.products.isNotEmpty) {
+      return SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 32),
+        sliver: SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.72,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+          ),
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final product = state.products[index];
+              return _ProductGridCard(product: product);
+            },
+            childCount: state.products.length,
+          ),
+        ),
+      );
+    }
+
+    // Error state → show error with retry
+    if (state.errorMessage != null) {
+      return SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.all(40.0),
+          child: Center(
+            child: Column(
+              children: [
+                Icon(Icons.error_outline, size: 50, color: Colors.orange.shade400),
+                const SizedBox(height: 12),
+                Text(
+                  'حدث خطأ',
+                  style: TextStyle(color: Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    state.errorMessage!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    final favs = context.read<FavoritesCubit>().state.favoriteStoreNames.toList();
+                    context.read<HomeCubit>().loadInitialData(favs);
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('إعادة المحاولة'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // No data at all
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.all(40.0),
+        child: Center(
+          child: Column(
+            children: [
+              Icon(Icons.search_off, size: 50, color: Colors.grey.shade300),
+              const SizedBox(height: 12),
+              Text(
+                'لا توجد نتائج',
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'لم يتم العثور على متاجر أو منتجات حالياً',
+                style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+              ),
+              const SizedBox(height: 20),
+              OutlinedButton.icon(
+                onPressed: () {
+                  final favs = context.read<FavoritesCubit>().state.favoriteStoreNames.toList();
+                  context.read<HomeCubit>().loadInitialData(favs);
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('إعادة المحاولة'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: primaryColor,
+                  side: BorderSide(color: primaryColor),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Product card shown in the home grid when no stores exist
+class _ProductGridCard extends StatelessWidget {
+  final dynamic product; // ProductEntity
+
+  const _ProductGridCard({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final primaryColor = const Color(0xFFFF4500);
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Product Image
+          Expanded(
+            flex: 3,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              child: product.imageUrl != null && product.imageUrl!.isNotEmpty
+                  ? Image.network(
+                      product.imageUrl!,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
+                    )
+                  : _buildImagePlaceholder(),
+            ),
+          ),
+          // Product Info
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    product.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${product.unitPrice.toStringAsFixed(0)} ${product.currencyName}',
+                        style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                      Icon(Icons.add_circle, color: primaryColor, size: 24),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImagePlaceholder() {
+    return Container(
+      width: double.infinity,
+      color: Colors.grey.shade100,
+      child: Icon(Icons.fastfood, color: Colors.grey.shade300, size: 48),
     );
   }
 }

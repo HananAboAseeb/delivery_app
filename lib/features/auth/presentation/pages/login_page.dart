@@ -47,24 +47,33 @@ class LoginPage extends StatelessWidget {
         builder: (context, state) {
           return Stack(
             children: [
-              // --- Background Gradient Fade (Removed Image) ---
+              // --- Background Image with Gradient Fade ---
               Positioned(
                 top: 0,
                 left: 0,
                 right: 0,
                 height: size.height * 0.45,
                 child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        theme.primaryColor.withOpacity(0.1),
-                        theme.primaryColor.withOpacity(0.05),
-                        Colors.white.withOpacity(0.8),
-                        Colors.white,
-                      ],
-                      stops: const [0.0, 0.5, 0.8, 1.0],
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/delivery_header.png'),
+                      fit: BoxFit.cover,
+                      alignment: Alignment.topCenter,
+                    ),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.white.withOpacity(0.0),
+                          Colors.white.withOpacity(0.4),
+                          Colors.white.withOpacity(0.8),
+                          Colors.white,
+                        ],
+                        stops: const [0.0, 0.5, 0.8, 1.0],
+                      ),
                     ),
                   ),
                 ),
