@@ -80,16 +80,16 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
   @override
   Future<List<StoreGroupModel>> getStoreGroups() async {
     try {
-      debugPrint('🔄 [StoreDS] Trying /api/ECommerce/store-groups-cache ...');
-      final response = await apiClient.get('/api/ECommerce/store-groups-cache');
+      debugPrint('🔄 [StoreDS] Trying /api/ECommerce/items-groups-cache ...');
+      final response = await apiClient.get('/api/ECommerce/items-groups-cache');
       final List items = response.data is List ? response.data : [];
-      debugPrint('✅ [StoreDS] store-groups-cache → ${items.length} groups');
+      debugPrint('✅ [StoreDS] items-groups-cache → ${items.length} groups');
       for (final item in items) {
         debugPrint('   → Group: ${item['name']} (id: ${item['id']})');
       }
       return items.map((json) => StoreGroupModel.fromJson(json as Map<String, dynamic>)).toList();
     } catch (e) {
-      debugPrint('❌ [StoreDS] store-groups-cache failed: $e');
+      debugPrint('❌ [StoreDS] items-groups-cache failed: $e');
       throw ServerException(message: 'Failed to fetch store groups: $e');
     }
   }
@@ -97,7 +97,19 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
   @override
   Future<List<StoreModel>> getStoresByGroup(String groupId) async {
     try {
-      debugPrint('🔄 [StoreDS] Trying stores/get-all for group: $groupId ...');
+      debugPrint('🔄 [StoreDS] Trying /api/ECommerce/stores-cache/store-restaurant-by-group-id/$groupId ...');
+      final response = await apiClient.get('/api/ECommerce/stores-cache/store-restaurant-by-group-id/$groupId');
+      final List items = response.data is List ? response.data : [];
+      debugPrint('✅ [StoreDS] stores by group (cached) → ${items.length} stores');
+      if (items.isNotEmpty) {
+        return items.map((json) => StoreModel.fromJson(json as Map<String, dynamic>)).toList();
+      }
+    } catch (e) {
+      debugPrint('⚠️ [StoreDS] getStoresByGroup cached failed: $e');
+    }
+
+    try {
+      debugPrint('🔄 [StoreDS] Falling back to stores/get-all for group: $groupId ...');
       final response = await apiClient.post(
         '/api/ECommerce/stores/get-all',
         data: {

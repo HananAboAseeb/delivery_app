@@ -86,10 +86,55 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<List<ProductModel>> getProductsByStore(String storeId, {String? itemGroupId}) async {
     try {
-      // Since stores may not exist yet, get all items
-      return await getProducts(1, 100);
+      debugPrint('🔄 [ProductDS] Trying POST /api/ECommerce/items/get-all for store: $storeId ...');
+      
+      final List<Map<String, dynamic>> filters = [
+        {'key': 'TenantId', 'condition': '==', 'value': storeId}, // Many ERPs alias StoreId as TenantId in multi-tenant contexts, or we try both.
+      ];
+      
+      if (itemGroupId != null) {
+        filters.add({'key': 'ItemGroupId', 'condition': '==', 'value': itemGroupId});
+      }
+
+      final response = await apiClient.post(
+        '/api/ECommerce/items/get-all',
+        data: {
+          'maxResultCount': 100,
+          'skipCount': 0,
+          'specificFilters': filters,
+        },
+      );
+      final data = response.data;
+      final List items = data is List ? data : (data is Map ? (data['items'] ?? []) : []);
+      debugPrint('✅ [ProductDS] items by store → ${items.length} items');
+      return items.map((json) {
+        final itemData = (json is Map && json.containsKey('item')) ? json['item'] : json;
+        return ProductModel.fromJson(itemData as Map<String, dynamic>);
+      }).toList();
     } catch (e) {
-      throw ServerException(message: 'Failed to get store products: $e');
+      debugPrint('⚠️ [ProductDS] Failed to get items by TenantId, trying StoreId filter... $e');
+      // If TenantId filter fails, it might literally be 'StoreId'
+      try {
+        final response = await apiClient.post(
+          '/api/ECommerce/items/get-all',
+          data: {
+            'maxResultCount': 100,
+            'skipCount': 0,
+            'specificFilters': [
+              {'key': 'StoreId', 'condition': '==', 'value': storeId}
+            ],
+          },
+        );
+        final data = response.data;
+        final List items = data is List ? data : (data is Map ? (data['items'] ?? []) : []);
+        debugPrint('✅ [ProductDS] items by store → ${items.length} items');
+        return items.map((json) {
+          final itemData = (json is Map && json.containsKey('item')) ? json['item'] : json;
+          return ProductModel.fromJson(itemData as Map<String, dynamic>);
+        }).toList();
+      } catch (e2) {
+        throw ServerException(message: 'Failed to get store products: $e2');
+      }
     }
   }
 }

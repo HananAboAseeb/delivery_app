@@ -1,0 +1,44 @@
+[
+  {
+    "theNumber": "1",
+    "name": "الملابس",
+    "foreignName": "ملابس",
+    "isActive": true,
+    "id": "f1c71d3a-a87f-5fe9-fe45-10848fdb7a29"
+  },
+  {
+    "theNumber": "5",
+    "name": "صيدليات",
+    "foreignName": "0",
+    "isActive": true,
+    "id": "aa5f1e3a-b76d-b7b5-4ad9-3358c5cec22b"
+  },
+  {
+    "theNumber": "4",
+    "name": "بهارات",
+    "foreignName": "0",
+    "isActive": true,
+    "id": "aa5f1e3a-b833-3cac-e1b2-66dc14bb20e4"
+  },
+  {
+    "theNumber": "2",
+    "name": "المطاعم",
+    "foreignName": "",
+    "isActive": true,
+    "id": "32201e3a-0b35-2574-2aef-939b8702aeff"
+  },
+  {
+    "theNumber": "6",
+    "name": "خضروات",
+    "foreignName": "0",
+    "isActive": true,
+    "id": "aa5f1e3a-4eb6-2d3b-66a6-bc5105a459fc"
+  },
+  {
+    "theNumber": "3",
+    "name": "سوبر ماركت",
+    "foreignName": "0",
+    "isActive": true,
+    "id": "a95f1e3a-cfd6-7b9c-1604-e41003f61d22"
+  }
+]
