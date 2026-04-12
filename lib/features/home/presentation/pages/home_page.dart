@@ -324,7 +324,7 @@ class _HomeTabState extends State<HomeTab> {
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '${state.stores.isNotEmpty ? state.stores.length : state.products.length} نتائج',
+                          '${state.stores.length} نتائج',
                           style: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.w600, fontSize: 13),
                         ),
                       ],
@@ -370,7 +370,7 @@ class _HomeTabState extends State<HomeTab> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => StoreDetailsPage(storeId: store.id),
+                      builder: (context) => StoreDetailsPage(store: store),
                     ),
                   );
                 },
@@ -401,8 +401,9 @@ class _HomeTabState extends State<HomeTab> {
       );
     }
 
-    // No stores → show products if available
-    if (state.products.isNotEmpty) {
+    // No stores → show products ONLY if no specific category is selected
+    // When a specific category is selected (like بهارات), don't show random global products
+    if (state.products.isNotEmpty && (state.selectedCategory == 'الكل' || state.selectedGroupId == null)) {
       return SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 32),
         sliver: SliverGrid(

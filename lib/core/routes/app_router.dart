@@ -7,6 +7,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/store/presentation/pages/store_details_page.dart';
+import '../../features/store/domain/entities/store_entity.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/order/presentation/pages/orders_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
@@ -49,10 +50,10 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const HomePage(),
     ),
     GoRoute(
-      path: '/store-details/:id',
+      path: '/store-details',
       builder: (context, state) {
-        final id = state.pathParameters['id'] ?? '1';
-        return StoreDetailsPage(storeId: id);
+        final store = state.extra as StoreEntity;
+        return StoreDetailsPage(store: store);
       },
     ),
     GoRoute(

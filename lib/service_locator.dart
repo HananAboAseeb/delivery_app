@@ -44,6 +44,7 @@ import 'features/auth/domain/usecases/get_current_user_usecase.dart';
 
 import 'features/product/domain/usecases/get_products_usecase.dart';
 import 'features/product/domain/usecases/search_products_usecase.dart';
+import 'features/product/domain/usecases/get_products_by_store_usecase.dart';
 
 import 'features/cart/domain/usecases/get_cart_usecase.dart';
 import 'features/cart/domain/usecases/add_to_cart_usecase.dart';
@@ -98,6 +99,7 @@ Future<void> setupServiceLocator() async {
 
   sl.registerLazySingleton(() => GetProductsUseCase(sl()));
   sl.registerLazySingleton(() => SearchProductsUseCase(sl()));
+  sl.registerLazySingleton(() => GetProductsByStoreUseCase(sl()));
 
   sl.registerLazySingleton(() => GetCartUseCase(sl()));
   sl.registerLazySingleton(() => AddToCartUseCase(sl()));

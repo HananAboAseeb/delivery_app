@@ -47,6 +47,8 @@ class StoreEntity extends Equatable {
   final String? imageUrl;
   final double? latitude;
   final double? longitude;
+  final String? tenantId;
+  final String? groupId;
   final List<StoreItemGroupEntity> storesItemGroups;
 
   const StoreEntity({
@@ -58,6 +60,8 @@ class StoreEntity extends Equatable {
     this.imageUrl,
     this.latitude,
     this.longitude,
+    this.tenantId,
+    this.groupId,
     this.storesItemGroups = const [],
   });
 
@@ -71,6 +75,8 @@ class StoreEntity extends Equatable {
         imageUrl,
         latitude,
         longitude,
+        tenantId,
+        groupId,
         storesItemGroups,
       ];
 }

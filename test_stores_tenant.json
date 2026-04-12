@@ -1,0 +1,44 @@
+[
+  {
+    "theNumber": "1",
+    "name": "الديار 2",
+    "foreignName": "0",
+    "isActive": true,
+    "itemActivityId": null,
+    "groupId": "32201e3a-0b35-2574-2aef-939b8702aeff",
+    "rank": 0,
+    "manualOrder": false,
+    "preparationTimeInMinute": null,
+    "imagUrl": null,
+    "tenantId": "d1581e3a-65d4-aaf7-c7f5-02cde535584e",
+    "id": "fb581e3a-b20f-e650-ece9-16e62957d664"
+  },
+  {
+    "theNumber": "1",
+    "name": "ركن البيك",
+    "foreignName": "ا",
+    "isActive": true,
+    "itemActivityId": null,
+    "groupId": "32201e3a-0b35-2574-2aef-939b8702aeff",
+    "rank": 0,
+    "manualOrder": false,
+    "preparationTimeInMinute": null,
+    "imagUrl": null,
+    "tenantId": "d9581e3a-dc5f-4d61-57a0-c5ce5ac7a73f",
+    "id": "f75f1e3a-66d3-6e82-a6b3-ab0df08aa493"
+  },
+  {
+    "theNumber": "1",
+    "name": "مطعم الديار",
+    "foreignName": "0",
+    "isActive": true,
+    "itemActivityId": null,
+    "groupId": "32201e3a-0b35-2574-2aef-939b8702aeff",
+    "rank": 0,
+    "manualOrder": false,
+    "preparationTimeInMinute": null,
+    "imagUrl": "",
+    "tenantId": "75201e3a-1241-4585-861c-578d7ef58978",
+    "id": "7e201e3a-47c2-b88e-fd4c-d221a950dc3f"
+  }
+]

@@ -40,9 +40,9 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<List<ProductEntity>> getProductsByStore(String storeId, {String? itemGroupId}) async {
+  Future<List<ProductEntity>> getProductsByStore(String storeId, {String? itemGroupId, String? tenantId}) async {
     try {
-      final models = await remoteDataSource.getProductsByStore(storeId, itemGroupId: itemGroupId);
+      final models = await remoteDataSource.getProductsByStore(storeId, itemGroupId: itemGroupId, tenantId: tenantId);
       return models.map((e) => e.toEntity()).toList();
     } on ServerException catch (e) {
       throw Exception('Server error: ${e.message}');

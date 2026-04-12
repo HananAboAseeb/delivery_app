@@ -1,0 +1,16 @@
+[
+  {
+    "theNumber": "1",
+    "name": "ركن البيك",
+    "foreignName": "ا",
+    "isActive": true,
+    "itemActivityId": null,
+    "groupId": "32201e3a-0b35-2574-2aef-939b8702aeff",
+    "rank": 0,
+    "manualOrder": false,
+    "preparationTimeInMinute": null,
+    "imagUrl": null,
+    "tenantId": "d9581e3a-dc5f-4d61-57a0-c5ce5ac7a73f",
+    "id": "f75f1e3a-66d3-6e82-a6b3-ab0df08aa493"
+  }
+]

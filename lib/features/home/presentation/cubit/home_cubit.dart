@@ -52,7 +52,17 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> fetchStores({String? groupId}) async {
-    emit(state.copyWith(isLoadingStores: true, errorMessage: null));
+    // ══════════════════════════════════════════════════════════════════
+    // FIX #3: Clear the old stores immediately when switching categories
+    // This prevents showing stale data from the previous category.
+    // ══════════════════════════════════════════════════════════════════
+    _allLoadedStoresCache = [];
+    emit(state.copyWith(
+      isLoadingStores: true,
+      stores: [], // Clear displayed stores immediately
+      errorMessage: null,
+    ));
+
     try {
       List<StoreEntity> stores;
       if (groupId != null && groupId != 'clear') {
@@ -70,10 +80,16 @@ class HomeCubit extends Cubit<HomeState> {
       _applyFiltersAndSort();
     } catch (e) {
       debugPrint('❌ [HomeCubit] Failed to fetch stores: $e');
+      // ══════════════════════════════════════════════════════════════
+      // FIX #3 continued: On error, keep the cache empty so the UI
+      // shows the empty state rather than old data from another category.
+      // ══════════════════════════════════════════════════════════════
+      _allLoadedStoresCache = [];
       emit(state.copyWith(
         isLoadingStores: false,
-        // Don't set error for stores - we'll fall back to products
+        stores: [], // Ensure empty list is emitted
       ));
+      _applyFiltersAndSort();
     }
   }
 
@@ -158,11 +174,13 @@ class HomeCubit extends Cubit<HomeState> {
 
   void selectCategory(String categoryName, String? categoryId) {
     if (state.selectedCategory == categoryName) {
+      // Deselect — go back to "all"
       fetchStores(groupId: null);
       _applyFiltersAndSort(category: 'الكل', categoryId: 'clear');
     } else {
-      fetchStores(groupId: categoryId);
+      // Select new category — fetch its stores
       _applyFiltersAndSort(category: categoryName, categoryId: categoryId);
+      fetchStores(groupId: categoryId);
     }
   }
 
@@ -181,14 +199,39 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> loadInitialData(List<String> initialFavs) async {
     _applyFiltersAndSort(category: 'الكل', categoryId: 'clear', filter: 'الكل', searchQuery: '', currentFavorites: initialFavs);
     
-    // Fetch groups first, then stores and products in parallel
+    // Fetch groups first
     await fetchStoreGroups();
-    
-    // Fetch stores and products in parallel for better performance
-    await Future.wait([
-      fetchStores(),
-      fetchProducts(),
-    ]);
+
+    // ══════════════════════════════════════════════════════════════════
+    // FIX #2: Auto-select the first category (المطاعم or whatever is first)
+    // so the user sees relevant stores immediately instead of random data.
+    // ══════════════════════════════════════════════════════════════════
+    if (state.storeGroups.isNotEmpty) {
+      // Prefer "المطاعم" if it exists, otherwise pick first group
+      final restaurantGroup = state.storeGroups.firstWhere(
+        (g) => (g.name ?? '').contains('مطاعم'),
+        orElse: () => state.storeGroups.first,
+      );
+      
+      debugPrint('🎯 [HomeCubit] Auto-selecting default group: ${restaurantGroup.name}');
+      
+      _applyFiltersAndSort(
+        category: restaurantGroup.name ?? 'الكل',
+        categoryId: restaurantGroup.id,
+      );
+      
+      // Fetch stores for the auto-selected group + products in parallel
+      await Future.wait([
+        fetchStores(groupId: restaurantGroup.id),
+        fetchProducts(),
+      ]);
+    } else {
+      // No groups available — just fetch whatever we can
+      await Future.wait([
+        fetchStores(),
+        fetchProducts(),
+      ]);
+    }
     
     debugPrint('🏠 [HomeCubit] Initial data loaded → stores: ${_allLoadedStoresCache.length}, products: ${_allLoadedProductsCache.length}');
   }

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:my_store/core/network/api_client.dart';
 import 'package:my_store/core/errors/exceptions.dart';
@@ -7,7 +8,7 @@ abstract class ProductRemoteDataSource {
   Future<List<ProductModel>> getProducts(int page, int pageSize);
   Future<ProductModel> getProductById(String id);
   Future<List<ProductModel>> searchProducts(String query);
-  Future<List<ProductModel>> getProductsByStore(String storeId, {String? itemGroupId});
+  Future<List<ProductModel>> getProductsByStore(String storeId, {String? itemGroupId, String? tenantId});
 }
 
 class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
@@ -84,57 +85,57 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<List<ProductModel>> getProductsByStore(String storeId, {String? itemGroupId}) async {
+  Future<List<ProductModel>> getProductsByStore(String storeId, {String? itemGroupId, String? tenantId}) async {
+    // ══════════════════════════════════════════════════════════════════
+    // Uses POST /api/ECommerce/store-brows/get-group
+    // This is the CORRECT endpoint that returns real store-specific
+    // products with prices, images, store name, etc.
+    // The groupId here is the itemUnderSubGroupId from the categories
+    // (e.g., فطور, عشاء) fetched via stores-cache/market/{StoreId}
+    // ══════════════════════════════════════════════════════════════════
+    final effectiveTenantId = tenantId;
+
+    debugPrint('🔄 [ProductDS] Fetching products via store-brows/get-group');
+    debugPrint('   storeId: $storeId, groupId: $itemGroupId, tenant: $effectiveTenantId');
+
     try {
-      debugPrint('🔄 [ProductDS] Trying POST /api/ECommerce/items/get-all for store: $storeId ...');
-      
-      final List<Map<String, dynamic>> filters = [
-        {'key': 'TenantId', 'condition': '==', 'value': storeId}, // Many ERPs alias StoreId as TenantId in multi-tenant contexts, or we try both.
-      ];
-      
-      if (itemGroupId != null) {
-        filters.add({'key': 'ItemGroupId', 'condition': '==', 'value': itemGroupId});
+      final Map<String, dynamic> requestBody = {
+        'storeId': storeId,
+        'sort': 'name',
+        'page': 1,
+        'pageSize': 100,
+        'filters': {},
+      };
+
+      // Add groupId only if a specific category is selected
+      if (itemGroupId != null && itemGroupId.isNotEmpty) {
+        requestBody['groupId'] = itemGroupId;
       }
 
-      final response = await apiClient.post(
-        '/api/ECommerce/items/get-all',
-        data: {
-          'maxResultCount': 100,
-          'skipCount': 0,
-          'specificFilters': filters,
-        },
+      final options = effectiveTenantId != null
+          ? Options(headers: {'__tenant': effectiveTenantId})
+          : null;
+
+      final response = await apiClient.dio.post(
+        '/api/ECommerce/store-brows/get-group',
+        data: requestBody,
+        options: options,
       );
+
       final data = response.data;
-      final List items = data is List ? data : (data is Map ? (data['items'] ?? []) : []);
-      debugPrint('✅ [ProductDS] items by store → ${items.length} items');
-      return items.map((json) {
-        final itemData = (json is Map && json.containsKey('item')) ? json['item'] : json;
-        return ProductModel.fromJson(itemData as Map<String, dynamic>);
-      }).toList();
-    } catch (e) {
-      debugPrint('⚠️ [ProductDS] Failed to get items by TenantId, trying StoreId filter... $e');
-      // If TenantId filter fails, it might literally be 'StoreId'
-      try {
-        final response = await apiClient.post(
-          '/api/ECommerce/items/get-all',
-          data: {
-            'maxResultCount': 100,
-            'skipCount': 0,
-            'specificFilters': [
-              {'key': 'StoreId', 'condition': '==', 'value': storeId}
-            ],
-          },
-        );
-        final data = response.data;
-        final List items = data is List ? data : (data is Map ? (data['items'] ?? []) : []);
-        debugPrint('✅ [ProductDS] items by store → ${items.length} items');
-        return items.map((json) {
-          final itemData = (json is Map && json.containsKey('item')) ? json['item'] : json;
-          return ProductModel.fromJson(itemData as Map<String, dynamic>);
-        }).toList();
-      } catch (e2) {
-        throw ServerException(message: 'Failed to get store products: $e2');
+      List items = [];
+      if (data is Map) {
+        items = data['items'] ?? [];
+        debugPrint('✅ [ProductDS] store-brows → ${items.length} items (total: ${data['totalCount']})');
+      } else if (data is List) {
+        items = data;
+        debugPrint('✅ [ProductDS] store-brows → ${items.length} items');
       }
+
+      return items.map((json) => ProductModel.fromJson(json as Map<String, dynamic>)).toList();
+    } catch (e) {
+      debugPrint('❌ [ProductDS] store-brows/get-group failed: $e');
+      throw ServerException(message: 'فشل في جلب أصناف المتجر: $e');
     }
   }
 }

@@ -61,6 +61,8 @@ class StoreModel extends StoreEntity {
     super.imageUrl,
     super.latitude,
     super.longitude,
+    super.tenantId,
+    super.groupId,
     super.storesItemGroups = const [],
   });
 
@@ -81,6 +83,8 @@ class StoreModel extends StoreEntity {
       imageUrl: json['imageUrl'] ?? json['imagUrl'] ?? json['image'] ?? json['logoUrl'],
       latitude: json['latitude'] != null ? (json['latitude'] as num).toDouble() : null,
       longitude: json['longitude'] != null ? (json['longitude'] as num).toDouble() : null,
+      tenantId: json['tenantId']?.toString(),
+      groupId: json['groupId']?.toString(),
       storesItemGroups: itemsGroups,
     );
   }
@@ -95,6 +99,8 @@ class StoreModel extends StoreEntity {
       'imageUrl': imageUrl,
       'latitude': latitude,
       'longitude': longitude,
+      'tenantId': tenantId,
+      'groupId': groupId,
       'storesItemGroups': storesItemGroups.map((e) => (e as StoreItemGroupModel).toJson()).toList(),
     };
   }

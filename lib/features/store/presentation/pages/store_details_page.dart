@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:my_store/core/network/api_client.dart';
-import 'package:my_store/features/store/data/datasources/store_remote_datasource.dart';
-import 'package:my_store/features/store/data/repositories/store_repository_impl.dart';
-import 'package:my_store/features/store/domain/usecases/get_store_by_id_usecase.dart';
+import 'package:my_store/service_locator.dart' as di;
+import 'package:my_store/features/store/domain/entities/store_entity.dart';
 
-import 'package:my_store/features/product/data/datasources/product_remote_datasource.dart';
-import 'package:my_store/features/product/data/repositories/product_repository_impl.dart';
+import 'package:my_store/features/store/data/datasources/store_remote_datasource.dart';
 import 'package:my_store/features/product/domain/usecases/get_products_by_store_usecase.dart';
 import 'package:my_store/features/product/domain/entities/product_entity.dart';
 
 import '../cubit/store_details_cubit.dart';
 
 class StoreDetailsPage extends StatefulWidget {
-  final String storeId;
-  const StoreDetailsPage({super.key, required this.storeId});
+  final StoreEntity store;
+  const StoreDetailsPage({super.key, required this.store});
 
   @override
   State<StoreDetailsPage> createState() => _StoreDetailsPageState();
@@ -34,20 +31,14 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
   @override
   void initState() {
     super.initState();
-    
-    final apiClient = ApiClient();
-    final storeRemoteDataSource = StoreRemoteDataSourceImpl(apiClient: apiClient);
-    final storeRepository = StoreRepositoryImpl(remoteDataSource: storeRemoteDataSource);
-
-    final productRemoteDataSource = ProductRemoteDataSourceImpl(apiClient: apiClient);
-    final productRepository = ProductRepositoryImpl(remoteDataSource: productRemoteDataSource);
 
     _cubit = StoreDetailsCubit(
-      getStoreByIdUseCase: GetStoreByIdUseCase(storeRepository),
-      getProductsByStoreUseCase: GetProductsByStoreUseCase(productRepository),
+      getProductsByStoreUseCase: di.sl<GetProductsByStoreUseCase>(),
+      storeRemoteDataSource: di.sl<StoreRemoteDataSource>(),
     );
 
-    _cubit.loadStoreDetails(widget.storeId);
+    // Load from the pre-fetched StoreEntity — fetches categories & products from API
+    _cubit.loadStoreFromEntity(widget.store);
   }
 
   @override
@@ -70,7 +61,37 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
 
             if (state.storeError != null || state.store == null) {
               return Center(
-                child: Text('خطأ في تحميل المتجر: ${state.storeError ?? "متجر غير موجود"}'),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 60, color: Colors.orange.shade400),
+                      const SizedBox(height: 16),
+                      Text(
+                        'خطأ في تحميل المتجر',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        state.storeError ?? "متجر غير موجود",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton.icon(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back),
+                        label: const Text('العودة'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               );
             }
 
@@ -252,9 +273,62 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
                   const SliverToBoxAdapter(
                     child: Padding(padding: EdgeInsets.all(40), child: Center(child: CircularProgressIndicator())),
                   )
+                else if (state.productsError != null)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(40),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Icon(Icons.error_outline, size: 50, color: Colors.orange.shade300),
+                            const SizedBox(height: 12),
+                            const Text(
+                              "لا توجد أصناف متاحة حالياً",
+                              style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "يرجى المحاولة لاحقاً",
+                              style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                            ),
+                            const SizedBox(height: 16),
+                            OutlinedButton.icon(
+                              onPressed: () => _cubit.fetchProducts(store.id),
+                              icon: const Icon(Icons.refresh, size: 18),
+                              label: const Text('إعادة المحاولة'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: _primary,
+                                side: BorderSide(color: _primary),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
                 else if (products.isEmpty)
-                  const SliverToBoxAdapter(
-                    child: Padding(padding: EdgeInsets.all(40), child: Center(child: Text("لا توجد منتجات هنا", style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)))),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(40),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Icon(Icons.restaurant_menu, size: 50, color: Colors.grey.shade300),
+                            const SizedBox(height: 12),
+                            const Text(
+                              "لا توجد أصناف متاحة",
+                              style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "سيتم إضافة الأصناف قريباً",
+                              style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   )
                 else
                   SliverPadding(

@@ -3,12 +3,28 @@ import 'package:my_store/core/network/api_client.dart';
 import 'package:my_store/core/errors/exceptions.dart';
 import '../models/store_model.dart';
 
+/// Represents a store menu category (e.g., فطور, عشاء)
+class StoreCategoryModel {
+  final String itemUnderSubGroupId;
+  final String itemUnderSubGroupName;
+
+  StoreCategoryModel({required this.itemUnderSubGroupId, required this.itemUnderSubGroupName});
+
+  factory StoreCategoryModel.fromJson(Map<String, dynamic> json) {
+    return StoreCategoryModel(
+      itemUnderSubGroupId: json['itemUnderSubGroupId']?.toString() ?? '',
+      itemUnderSubGroupName: json['itemUnderSubGroupName']?.toString() ?? '',
+    );
+  }
+}
+
 abstract class StoreRemoteDataSource {
   Future<List<StoreModel>> getStores();
   Future<StoreModel> getStoreById(String id);
   Future<List<StoreModel>> getStoresByRegion(String regionId);
   Future<List<StoreGroupModel>> getStoreGroups();
   Future<List<StoreModel>> getStoresByGroup(String groupId);
+  Future<List<StoreCategoryModel>> getStoreCategories(String storeId);
 }
 
 class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
@@ -129,6 +145,23 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
     } catch (e) {
       debugPrint('❌ [StoreDS] getStoresByGroup failed: $e');
       throw ServerException(message: 'Failed to fetch stores by group: $e');
+    }
+  }
+
+  @override
+  Future<List<StoreCategoryModel>> getStoreCategories(String storeId) async {
+    try {
+      debugPrint('🔄 [StoreDS] Fetching categories from /stores-cache/market/$storeId ...');
+      final response = await apiClient.get('/api/ECommerce/stores-cache/market/$storeId');
+      final List items = response.data is List ? response.data : [];
+      debugPrint('✅ [StoreDS] Store categories → ${items.length} categories');
+      for (final item in items) {
+        debugPrint('   → Category: ${item['itemUnderSubGroupName']} (id: ${item['itemUnderSubGroupId']})');
+      }
+      return items.map((json) => StoreCategoryModel.fromJson(json as Map<String, dynamic>)).toList();
+    } catch (e) {
+      debugPrint('❌ [StoreDS] getStoreCategories failed: $e');
+      throw ServerException(message: 'Failed to fetch store categories: $e');
     }
   }
 }
