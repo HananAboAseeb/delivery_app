@@ -34,33 +34,61 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
 
   @override
   Future<void> addToCart(CartItemModel item) async {
-    await database.addOrUpdateCartItem(
-      CartItemsCompanion(
-        // id is autoincrement in Drift, so omit it for new inserts unless you want to map String to Int
-        productId: Value(item.productId),
-        productName: Value(item.productName),
-        quantity: Value(item.quantity.toDouble()),
-        unitPrice: Value(item.unitPrice),
-        totalPrice: Value(item.totalPrice),
-        size: Value(item.size),
-        color: Value(item.color),
-        storeId: Value(item.storeId),
-        storeName: Value(item.storeName),
-      ),
-    );
+    // Check if the product already exists in the cart by productId
+    final existingItems = await database.getCartItems();
+    final existing = existingItems.where((e) => e.productId == item.productId).firstOrNull;
+
+    if (existing != null) {
+      // Update quantity and total price
+      final newQuantity = existing.quantity + item.quantity;
+      final newTotal = newQuantity * existing.unitPrice;
+      
+      await database.addOrUpdateCartItem(
+        CartItemsCompanion(
+          id: Value(existing.id), // Passing existing id triggers update
+          quantity: Value(newQuantity),
+          totalPrice: Value(newTotal),
+        ),
+      );
+    } else {
+      // Insert new
+      await database.addOrUpdateCartItem(
+        CartItemsCompanion(
+          productId: Value(item.productId),
+          productName: Value(item.productName),
+          quantity: Value(item.quantity.toDouble()),
+          unitPrice: Value(item.unitPrice),
+          totalPrice: Value(item.totalPrice),
+          size: Value(item.size),
+          color: Value(item.color),
+          storeId: Value(item.storeId),
+          storeName: Value(item.storeName),
+        ),
+      );
+    }
   }
 
   @override
   Future<void> removeFromCart(String id) async {
-    // If id is passed as string but DB is int
     await database.removeCartItem(int.parse(id));
   }
 
   @override
   Future<void> updateCartQuantity(String id, int quantity) async {
-    // In actual implementation you fetch and update the model. For now, Drift requires full companion update.
-    // The user didn't specify update logic in DB, so we can skip or do a placeholder:
-    // This requires a custom DB query, or we just rely on addOrUpdateCartItem
+    final intId = int.parse(id);
+    final existingItems = await database.getCartItems();
+    final existing = existingItems.where((e) => e.id == intId).firstOrNull;
+
+    if (existing != null) {
+      final newTotal = quantity * existing.unitPrice;
+      await database.addOrUpdateCartItem(
+        CartItemsCompanion(
+          id: Value(existing.id),
+          quantity: Value(quantity.toDouble()),
+          totalPrice: Value(newTotal),
+        ),
+      );
+    }
   }
 
   @override

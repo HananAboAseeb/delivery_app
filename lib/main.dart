@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'service_locator.dart' as di;
@@ -11,8 +13,19 @@ import 'features/product/presentation/bloc/product_bloc.dart';
 import 'features/cart/presentation/bloc/cart_cubit.dart';
 import 'features/order/presentation/bloc/order_bloc.dart';
 
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = ((X509Certificate cert, String host, int port) => true);
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Fix for Image.network failing to load SSL images
+  HttpOverrides.global = MyHttpOverrides();
   
   // 1. Initialize Dependency Injection
   await di.setupServiceLocator();

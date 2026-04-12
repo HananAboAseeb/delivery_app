@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:my_store/service_locator.dart' as di;
 import 'package:my_store/features/store/domain/entities/store_entity.dart';
-
 import 'package:my_store/features/store/data/datasources/store_remote_datasource.dart';
 import 'package:my_store/features/product/domain/usecases/get_products_by_store_usecase.dart';
 import 'package:my_store/features/product/domain/entities/product_entity.dart';
+import 'package:my_store/features/cart/domain/entities/cart_item_entity.dart';
+import 'package:my_store/features/cart/presentation/bloc/cart_cubit.dart';
 
 import '../cubit/store_details_cubit.dart';
 
@@ -340,8 +342,8 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
                           final prodIdStr = product.id.toString();
                           return _ProductCard(
                             product: product,
+                            store: store,
                             // we pass 0 for variants because we don't have variants right now.
-                            // but later we can map it. For now, it stays as is to retain compilation
                             selectedVariantIndex: _selectedVariants[prodIdStr] ?? 0,
                             quantity: _quantities[prodIdStr] ?? 1,
                             onVariantChanged: (variantIdx) {
@@ -352,12 +354,34 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
                             },
                             onAddToCart: () {
                               final qty = _quantities[prodIdStr] ?? 1;
+                              final price = product.unitPrice;
+                              
+                              final cartItem = CartItemEntity(
+                                id: const Uuid().v4(), // Generate unique ID for cart item
+                                productId: product.id,
+                                productName: product.name,
+                                quantity: qty,
+                                unitPrice: price,
+                                totalPrice: price * qty,
+                                storeId: store.id,
+                                storeName: store.name,
+                              );
+                              
+                              context.read<CartCubit>().addItem(cartItem);
+                              
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('تمت إضافة $qty ${product.name} إلى السلة'),
                                   backgroundColor: Colors.green.shade600,
                                   behavior: SnackBarBehavior.floating,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  action: SnackBarAction(
+                                    label: 'عرض السلة',
+                                    textColor: Colors.white,
+                                    onPressed: () {
+                                      // Optional: Navigate to cart
+                                    },
+                                  ),
                                 ),
                               );
                             },
@@ -379,6 +403,7 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
 // ── Product Card Widget ────────────────────────────────────────────────
 class _ProductCard extends StatelessWidget {
   final ProductEntity product;
+  final StoreEntity store;
   final int selectedVariantIndex;
   final int quantity;
   final ValueChanged<int> onVariantChanged;
@@ -387,6 +412,7 @@ class _ProductCard extends StatelessWidget {
 
   const _ProductCard({
     required this.product,
+    required this.store,
     required this.selectedVariantIndex,
     required this.quantity,
     required this.onVariantChanged,
