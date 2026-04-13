@@ -19,10 +19,12 @@ class ThemeConfig extends Equatable {
 
   factory ThemeConfig.defaultTheme() {
     return const ThemeConfig(
-      primaryColorHex: '#E53935',
+      // --- تغيير اللون الأساسي للتطبيق من هنا ---
+      // غيّر الرمز '#E53935' للون الذي تريده.
+      primaryColorHex: '#66adde',
       secondaryColorHex: '#FF8A80',
       logoUrl: null,
-      appName: 'NeoDelivery',
+      appName: 'خلك مرتاح',
       fontFamily: 'Inter',
     );
   }
@@ -48,5 +50,6 @@ class ThemeConfig extends Equatable {
   }
 
   @override
-  List<Object?> get props => [primaryColorHex, secondaryColorHex, logoUrl, appName, fontFamily];
+  List<Object?> get props =>
+      [primaryColorHex, secondaryColorHex, logoUrl, appName, fontFamily];
 }

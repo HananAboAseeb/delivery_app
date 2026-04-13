@@ -41,16 +41,12 @@ class ThemeCubit extends Cubit<ThemeState> {
   Future<void> loadTheme() async {
     emit(ThemeLoading());
     try {
-      // Attempt to load from secure storage
-      final cachedThemeStr = await _storage.read(key: _themeCacheKey);
-      if (cachedThemeStr != null && cachedThemeStr.isNotEmpty) {
-        final Map<String, dynamic> jsonMap = json.decode(cachedThemeStr);
-        emit(ThemeLoaded(ThemeConfig.fromJson(jsonMap)));
-      } else {
-        // Fallback to default
-        final defaultTheme = ThemeConfig.defaultTheme();
-        emit(ThemeLoaded(defaultTheme));
-      }
+      // ══════════════════════════════════════════════════════════════
+      // FOR DEVELOPMENT: Always load defaultTheme to test color changes
+      // In production, you would uncomment the secure storage loading.
+      // ══════════════════════════════════════════════════════════════
+      final defaultTheme = ThemeConfig.defaultTheme();
+      emit(ThemeLoaded(defaultTheme));
     } catch (e) {
       // If error occurs, fallback to default theme instead of breaking the app
       emit(ThemeLoaded(ThemeConfig.defaultTheme()));

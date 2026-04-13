@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'service_locator.dart' as di;
 
 import 'core/theme/theme_cubit.dart';
+import 'core/theme/theme_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_router.dart';
 
@@ -12,6 +13,9 @@ import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/product/presentation/bloc/product_bloc.dart';
 import 'features/cart/presentation/bloc/cart_cubit.dart';
 import 'features/order/presentation/bloc/order_bloc.dart';
+import 'features/favorites/presentation/cubit/favorites_cubit.dart';
+import 'features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -45,34 +49,22 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => di.sl<ProductBloc>()),
         BlocProvider(create: (_) => di.sl<CartCubit>()),
         BlocProvider(create: (_) => di.sl<OrderBloc>()),
+        BlocProvider(create: (_) => FavoritesCubit(di.sl<FlutterSecureStorage>())),
+        BlocProvider(create: (_) => ProfileCubit(di.sl<FlutterSecureStorage>())),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {
-          if (state is ThemeLoaded) {
-            return MaterialApp.router(
-              title: state.config.appName,
-              theme: AppTheme.buildTheme(state.config),
-              routerConfig: appRouter,
-              debugShowCheckedModeBanner: false,
-              builder: (context, child) {
+          // ALWAYS load default theme during development to ensure hot-reload fetches config instantly
+          return MaterialApp.router(
+            title: ThemeConfig.defaultTheme().appName,
+            theme: AppTheme.buildTheme(ThemeConfig.defaultTheme()),
+            routerConfig: appRouter,
+            debugShowCheckedModeBanner: false,
+            builder: (context, child) {
                 return Directionality(
                   textDirection: TextDirection.rtl,
                   child: child!,
                 );
-              },
-            );
-          }
-          // Fallback Material App while theme loads
-          return MaterialApp.router(
-            title: 'WASL',
-            theme: ThemeData.light(),
-            routerConfig: appRouter,
-            debugShowCheckedModeBanner: false,
-            builder: (context, child) {
-              return Directionality(
-                textDirection: TextDirection.rtl,
-                child: child!,
-              );
             },
           );
         },

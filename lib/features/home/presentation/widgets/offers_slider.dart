@@ -15,25 +15,22 @@ class _OffersSliderState extends State<OffersSlider> {
 
   final List<Map<String, String>> _offers = [
     {
-      'title': 'خصم 40% على أول طلب',
-      'action': 'اطلب الآن',
-      'color1': '0xFFFF4500', // Our primary
-      'color2': '0xFFC9502E', // Our secondary
+      'title': 'الرابط قد تكون أنت!',
+      'action': 'اطلب بـ 2,000 ريال',
       'icon': 'local_offer',
+      'image': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=600&auto=format&fit=crop', // Burger/Pizza backdrop
     },
     {
-      'title': 'توصيل مجاني للطلبات فوق 50 ريال',
+      'title': 'خصم 35% للجميع',
       'action': 'تصفح العروض',
-      'color1': '0xFF4CAF50',
-      'color2': '0xFF2E7D32',
       'icon': 'directions_bike',
+      'image': 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?q=80&w=600&auto=format&fit=crop', // Chicken/Grill
     },
     {
-      'title': 'خصم 25% على المطاعم المختارة',
-      'action': 'شاهد المطاعم',
-      'color1': '0xFF2196F3',
-      'color2': '0xFF1565C0',
+      'title': 'توصيل مجاني لأول طلب',
+      'action': 'استخدم الكود',
       'icon': 'restaurant',
+      'image': 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=600&auto=format&fit=crop', // Coffee
     },
   ];
 
@@ -89,24 +86,28 @@ class _OffersSliderState extends State<OffersSlider> {
             itemCount: _offers.length,
             itemBuilder: (context, index) {
               final offer = _offers[index];
-              final c1 = Color(int.parse(offer['color1']!));
-              final c2 = Color(int.parse(offer['color2']!));
+              final theme = Theme.of(context);
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [c1, c2],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: theme.primaryColor,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: c1.withOpacity(0.3),
+                      color: theme.primaryColor.withOpacity(0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     )
                   ],
+                  // Use the background image with a color filter overlay to maintain brand!
+                  image: DecorationImage(
+                    image: NetworkImage(offer['image']!),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                      theme.primaryColor.withOpacity(0.7), // Single color wash
+                      BlendMode.srcOver,
+                    ),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -122,8 +123,8 @@ class _OffersSliderState extends State<OffersSlider> {
                               offer['title']!,
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
                                 height: 1.4,
                               ),
                               maxLines: 2,
@@ -131,19 +132,20 @@ class _OffersSliderState extends State<OffersSlider> {
                             ),
                             const Spacer(),
                             InkWell(
-                              onTap: () {
-                                print('Applying coupon/offer: ${offer['title']}');
-                              },
+                              onTap: () {},
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))
+                                  ],
                                 ),
                                 child: Text(
                                   offer['action']!,
                                   style: TextStyle(
-                                    color: c1,
+                                    color: theme.primaryColor,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,
                                   ),
@@ -158,8 +160,8 @@ class _OffersSliderState extends State<OffersSlider> {
                       flex: 4,
                       child: Icon(
                         _getIconData(offer['icon']!),
-                        size: 70,
-                        color: Colors.white.withOpacity(0.4),
+                        size: 80,
+                        color: Colors.white.withOpacity(0.15),
                       ),
                     ),
                   ],

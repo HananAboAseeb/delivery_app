@@ -38,6 +38,13 @@ class HomeCubit extends Cubit<HomeState> {
       for (final g in groups) {
         debugPrint('   → Group: ${g.name} (id: ${g.id})');
       }
+      // Sort so 'مطاعم' is always first
+      groups.sort((a, b) {
+        if ((a.name ?? '').contains('مطاعم')) return -1;
+        if ((b.name ?? '').contains('مطاعم')) return 1;
+        return 0; // maintain original order for others
+      });
+
       emit(state.copyWith(
         storeGroups: groups,
         isLoadingGroups: false,
@@ -148,7 +155,7 @@ class HomeCubit extends Cubit<HomeState> {
         filteredList.shuffle();
         break;
       case 'المفضلة':
-        filteredList = filteredList.where((store) => favs.contains(store.name)).toList();
+        filteredList = filteredList.where((store) => favs.contains(store.id)).toList();
         break;
       case 'الكل':
       default:

@@ -45,9 +45,16 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
       
       await database.addOrUpdateCartItem(
         CartItemsCompanion(
-          id: Value(existing.id), // Passing existing id triggers update
+          id: Value(existing.id),
+          productId: Value(existing.productId),
+          productName: Value(existing.productName),
           quantity: Value(newQuantity),
+          unitPrice: Value(existing.unitPrice),
           totalPrice: Value(newTotal),
+          size: Value(existing.size),
+          color: Value(existing.color),
+          storeId: Value(existing.storeId),
+          storeName: Value(existing.storeName),
         ),
       );
     } else {
@@ -84,8 +91,15 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
       await database.addOrUpdateCartItem(
         CartItemsCompanion(
           id: Value(existing.id),
+          productId: Value(existing.productId),
+          productName: Value(existing.productName),
           quantity: Value(quantity.toDouble()),
+          unitPrice: Value(existing.unitPrice),
           totalPrice: Value(newTotal),
+          size: Value(existing.size),
+          color: Value(existing.color),
+          storeId: Value(existing.storeId),
+          storeName: Value(existing.storeName),
         ),
       );
     }

@@ -29,85 +29,33 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _bottomNavIndex = 0;
-
-  late final FavoritesCubit _favoritesCubit;
   late final HomeCubit _homeCubit;
-  late final ProfileCubit _profileCubit;
 
   @override
   void initState() {
     super.initState();
-
-    // Use DI to get shared instances with proper auth token
-    _favoritesCubit = FavoritesCubit(const FlutterSecureStorage());
     _homeCubit = di.sl<HomeCubit>();
-    _profileCubit = ProfileCubit(const FlutterSecureStorage());
   }
 
   @override
   void dispose() {
-    _favoritesCubit.close();
     _homeCubit.close();
-    _profileCubit.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider.value(value: _favoritesCubit),
-        BlocProvider.value(value: _homeCubit),
-        BlocProvider.value(value: _profileCubit),
-      ],
-      child: BlocListener<FavoritesCubit, FavoritesState>(
-        listener: (context, state) {
-          _homeCubit.syncFavorites(state.favoriteStoreNames.toList());
-        },
-        child: Scaffold(
-          backgroundColor: Colors.grey.shade50,
-          body: IndexedStack(
-            index: _bottomNavIndex,
-            children: [
-              const HomeTab(),
-              const SearchPage(),
-              const CartPage(),
-              const FavoritesPage(),
-              const ProfilePage(),
-            ],
-          ),
-          bottomNavigationBar: _buildBottomNav(),
+    return BlocListener<FavoritesCubit, FavoritesState>(
+      listener: (context, state) {
+        // Sync the favorites across so UI can filter if needed
+        _homeCubit.syncFavorites(state.favoriteStoreIds.toList());
+      },
+      child: BlocProvider<HomeCubit>.value(
+        value: _homeCubit,
+        child: const Scaffold(
+          backgroundColor: Color(0xFFFAFAFA),
+          body: HomeTab(),
         ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNav() {
-    final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))
-        ],
-      ),
-      child: BottomNavigationBar(
-        currentIndex: _bottomNavIndex,
-        onTap: (index) => setState(() => _bottomNavIndex = index),
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: theme.primaryColor,
-        unselectedItemColor: Colors.grey.shade400,
-        showUnselectedLabels: true,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-        unselectedLabelStyle: const TextStyle(fontSize: 11),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'الرئيسية'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'البحث'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'السلة'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'المفضلة'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'حسابي'),
-        ],
       ),
     );
   }
@@ -121,158 +69,251 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
-  IconData _getIconForCategory(String name) {
-    if (name.contains('مطاعم')) return Icons.restaurant;
-    if (name.contains('كوفي')) return Icons.local_cafe;
-    if (name.contains('بقالة') || name.contains('ماركت')) return Icons.store;
-    if (name.contains('صيدلية')) return Icons.local_pharmacy;
-    if (name.contains('هدايا')) return Icons.card_giftcard;
-    if (name.contains('ملابس')) return Icons.checkroom;
-    if (name.contains('إلكترونيات')) return Icons.devices;
-    return Icons.category;
-  }
-
-  final List<String> _filters = ['الكل', 'الأقرب', 'الجديدة', 'المفضلة'];
+  final FocusNode _searchFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
+    _searchFocusNode.addListener(() {
+      setState(() {});
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final favs = context.read<FavoritesCubit>().state.favoriteStoreNames.toList();
+      final favs = context.read<FavoritesCubit>().state.favoriteStoreIds.toList();
       context.read<HomeCubit>().loadInitialData(favs);
     });
   }
 
   @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  String _getImageForCategory(String name) {
+    if (name.contains('مطاعم')) return 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=300&auto=format&fit=crop';
+    if (name.contains('كوفي') || name.contains('كافيه')) return 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=300&auto=format&fit=crop';
+    if (name.contains('بقالة') || name.contains('ماركت')) return 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=300&auto=format&fit=crop';
+    if (name.contains('صيدل')) return 'https://images.unsplash.com/photo-1576602976047-174e57a47881?q=80&w=300&auto=format&fit=crop';
+    if (name.contains('هدايا')) return 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=300&auto=format&fit=crop';
+    if (name.contains('لابس') || name.contains('أزياء')) return 'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?q=80&w=300&auto=format&fit=crop';
+    if (name.contains('بهارات')) return 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=300&auto=format&fit=crop';
+    if (name.contains('خضروات')) return 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=300&auto=format&fit=crop';
+    return 'https://images.unsplash.com/photo-1580828369019-2220d58a0cb0?q=80&w=300&auto=format&fit=crop'; 
+  }
+
+  final List<String> _filters = ['الكل', 'الأقرب', 'الجديدة', 'المفضلة'];
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = const Color(0xFFFF4500);
-
+    
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         return CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // --- AppBar ---
+            // --- Custom Highly Professional Header with Search Bar Inside ---
             SliverAppBar(
               pinned: true,
-              backgroundColor: primaryColor,
-              foregroundColor: Colors.white,
-              elevation: 0, // Removes shadow as requested
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.adjust_rounded, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text(
-                    'WASL',
-                    style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 18, color: Colors.white),
-                  ),
-                ],
-              ),
-              centerTitle: true,
-              leading: IconButton(
-                icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
-                onPressed: () {},
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.menu, color: Colors.white),
-                  onPressed: () {},
+              backgroundColor: theme.primaryColor,
+              expandedHeight: 140, // Reduced from 180 as requested
+              elevation: 0,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Stack(
+                  children: [
+                    // Red Gradient background
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            theme.primaryColor,
+                            theme.primaryColor.withOpacity(0.85),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Glassmorphic pattern or circles can be added here
+                    Positioned(
+                      top: -40,
+                      right: -40,
+                      child: Container(
+                        width: 150,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                    SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.adjust_rounded, color: Colors.white, size: 28),
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                      'خلك مرتاح',
+                                      style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
+                                      onPressed: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (_) => const CartPage()));
+                                      },
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
+                                      },
+                                      child: const CircleAvatar(
+                                        radius: 17,
+                                        backgroundColor: Colors.white24,
+                                        child: Icon(Icons.person, color: Colors.white, size: 20),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            // Location text
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.location_on, color: Colors.white, size: 16),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    'اليمن، صنعاء، الحصبة، حارة النصر',
+                                    style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.9)),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const Icon(Icons.keyboard_arrow_down, color: Colors.white70, size: 18),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            // Elegant Inner Search Bar
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              height: 48,
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: _searchFocusNode.hasFocus ? theme.primaryColor : Colors.transparent,
+                                  width: 2,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 5))
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.search, color: theme.primaryColor, size: 22),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: TextField(
+                                      focusNode: _searchFocusNode,
+                                      onChanged: (val) {
+                                        context.read<HomeCubit>().updateSearchQuery(val);
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'ابحث عن مطعم، وجبة...',
+                                        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                                        border: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        contentPadding: const EdgeInsets.only(bottom: 2), // Align text properly
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 1,
+                                    height: 20,
+                                    color: Colors.grey.shade300,
+                                    margin: const EdgeInsets.symmetric(horizontal: 12),
+                                  ),
+                                  Icon(Icons.tune, color: theme.primaryColor, size: 20),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(0), // No extra bottom space, background arc handles it
+                child: Container(
+                  height: 20,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFAFAFA), // Matches Scaffold background
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                ),
+              ),
             ),
 
-            // --- Scrollable Layout Content (No forced heights!) ---
+            // --- Body Content ---
             SliverToBoxAdapter(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 16),
-                  
-                  // 1. Greeting and Location
+                  // Operational Hours Banner
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        BlocBuilder<ProfileCubit, ProfileState>(
-                          builder: (context, state) {
-                            String name = 'عزيزي العميل';
-                            if (state is ProfileLoaded) {
-                              name = state.profile.name.isNotEmpty ? state.profile.name : 'عزيزي العميل';
-                            }
-                            return Text(
-                              'مرحباً، $name 👋',
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Icon(Icons.location_on, color: primaryColor, size: 18),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                'اليمن، صنعاء، شارع حدة',
-                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade700, size: 20),
-                          ],
+                        Icon(Icons.access_time_filled, color: Colors.orange.shade400, size: 16),
+                        const SizedBox(width: 6),
+                        const Text(
+                          'أوقات الدوام من 7:30 الصباح وحتى 11 المساء',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
                         ),
                       ],
                     ),
                   ),
-                  
-                  const SizedBox(height: 16),
 
-                  // 2. Search Bar (Smaller height)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: SizedBox(
-                      height: 45, // Smaller height explicitly as requested
-                      child: TextField(
-                        onChanged: (val) {
-                          context.read<HomeCubit>().updateSearchQuery(val);
-                        },
-                        style: const TextStyle(fontSize: 14),
-                        decoration: InputDecoration(
-                          hintText: 'ابحث عن مطعم، منتج، أو متجر...',
-                          hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                          prefixIcon: Icon(Icons.search, color: Colors.grey.shade400, size: 20),
-                          filled: true,
-                          fillColor: Colors.grey.shade100,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: EdgeInsets.zero, // Forces vertical alignment to respect custom height
-                        ),
-                      ),
-                    ),
-                  ),
+                  const SizedBox(height: 12),
 
-                  const SizedBox(height: 24),
-
-                  // 3. Popular Categories Icons Row
+                  // Image-based Categories Row (Using CategoryImageWidget with Grayscale inside)
                   SizedBox(
-                    height: 90, // Natural height buffer for items inside
+                    height: 110, 
                     child: state.isLoadingGroups
                         ? const Center(child: CircularProgressIndicator())
                         : ListView.builder(
                             physics: const BouncingScrollPhysics(),
                             scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             itemCount: state.storeGroups.length,
                             itemBuilder: (context, index) {
                               final group = state.storeGroups[index];
                               return CategoryIcon(
                                 label: group.name ?? 'Unknown',
-                                icon: _getIconForCategory(group.name ?? ''),
+                                imageUrl: _getImageForCategory(group.name ?? ''),
                                 isSelected: state.selectedGroupId == group.id,
                                 onTap: () {
                                   context.read<HomeCubit>().selectCategory(group.name ?? '', group.id);
@@ -282,312 +323,272 @@ class _HomeTabState extends State<HomeTab> {
                           ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
-                  // 4. Offers Slider
+                  // Stunning Ads Banner 
                   const OffersSlider(),
 
                   const SizedBox(height: 20),
 
-                  // 5. Filter Tabs (Horizontal)
+                  // Filter Tabs
                   SizedBox(
                     height: 40,
                     child: ListView.builder(
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       itemCount: _filters.length,
                       itemBuilder: (context, index) {
-                        return FilterChipWidget(
-                          label: _filters[index],
-                          isSelected: state.selectedFilter == _filters[index],
-                          onTap: () {
-                            context.read<HomeCubit>().selectFilter(_filters[index]);
-                          },
+                        final filter = _filters[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: FilterChipWidget(
+                            label: filter,
+                            isSelected: state.selectedFilter == filter || (index == 0 && state.selectedFilter == 'الكل'),
+                            onTap: () {
+                              context.read<HomeCubit>().selectFilter(filter);
+                            },
+                          ),
                         );
                       },
                     ),
                   ),
 
-                  const SizedBox(height: 24),
-                  
-                  // 6. Results Title
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          state.selectedCategory == 'الكل'
-                              ? (state.searchQuery.isNotEmpty ? 'نتائج البحث' : 'المنتجات المتاحة')
-                              : 'نتائج البحث (${state.selectedCategory})',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          '${state.stores.length} نتائج',
-                          style: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.w600, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
 
-            // 7. Results Grid: Show stores if they exist, otherwise show products
-            _buildResultsGrid(state, theme),
+            // --- Stores List replacing Grid (List vertical design like screenshot) ---
+            if (state.isLoadingStores)
+              const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (state.errorMessage != null)
+              SliverFillRemaining(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 50, color: Colors.red.shade400),
+                      const SizedBox(height: 16),
+                      Text('خطأ في تحميل المتاجر', style: TextStyle(color: Colors.grey.shade600)),
+                      TextButton(
+                        onPressed: () {
+                          context.read<HomeCubit>().fetchStores(groupId: state.selectedGroupId);
+                        },
+                        child: const Text('إعادة المحاولة'),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else if (state.stores.isEmpty)
+              SliverFillRemaining(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.storefront_outlined, size: 80, color: Colors.grey.shade300),
+                      const SizedBox(height: 16),
+                      Text('لا توجد بيانات', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade600)),
+                    ],
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 100),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final store = state.stores[index];
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => StoreDetailsPage(store: store),
+                            ),
+                          );
+                        },
+                        child: StoreCardRedesigned(
+                          store: store,
+                          onFavoriteToggled: () {
+                            context.read<FavoritesCubit>().toggleFavorite(store.id, store.name);
+                          },
+                        ),
+                      );
+                    },
+                    childCount: state.stores.length,
+                  ),
+                ),
+              ),
           ],
         );
       },
     );
   }
-
-  Widget _buildResultsGrid(HomeState state, ThemeData theme) {
-    final primaryColor = const Color(0xFFFF4500);
-    
-    // If stores exist, show stores grid
-    if (state.stores.isNotEmpty) {
-      return SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 32),
-        sliver: SliverGrid(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.75,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final store = state.stores[index];
-              return StoreCardWidget(
-                name: store.name,
-                category: state.selectedCategory != 'الكل' ? state.selectedCategory : 'متجر',
-                distance: 'يحدد لاحقا',
-                rating: 4.5,
-                deliveryTime: '20-30 دقيقة',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => StoreDetailsPage(store: store),
-                    ),
-                  );
-                },
-              );
-            },
-            childCount: state.stores.length,
-          ),
-        ),
-      );
-    }
-
-    // Show loading indicator
-    if (state.isLoadingStores || state.isLoadingProducts) {
-      return SliverToBoxAdapter(
-        child: Center(child: Padding(
-          padding: const EdgeInsets.all(40.0),
-          child: Column(
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(height: 16),
-              Text(
-                'جاري جلب البيانات...',
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
-              ),
-            ],
-          ),
-        )),
-      );
-    }
-
-    // No stores → show products ONLY if no specific category is selected
-    // When a specific category is selected (like بهارات), don't show random global products
-    if (state.products.isNotEmpty && (state.selectedCategory == 'الكل' || state.selectedGroupId == null)) {
-      return SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 32),
-        sliver: SliverGrid(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.72,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final product = state.products[index];
-              return _ProductGridCard(product: product);
-            },
-            childCount: state.products.length,
-          ),
-        ),
-      );
-    }
-
-    // Error state → show error with retry
-    if (state.errorMessage != null) {
-      return SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.all(40.0),
-          child: Center(
-            child: Column(
-              children: [
-                Icon(Icons.error_outline, size: 50, color: Colors.orange.shade400),
-                const SizedBox(height: 12),
-                Text(
-                  'حدث خطأ',
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    state.errorMessage!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    final favs = context.read<FavoritesCubit>().state.favoriteStoreNames.toList();
-                    context.read<HomeCubit>().loadInitialData(favs);
-                  },
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('إعادة المحاولة'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    // No data at all
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.all(40.0),
-        child: Center(
-          child: Column(
-            children: [
-              Icon(Icons.search_off, size: 50, color: Colors.grey.shade300),
-              const SizedBox(height: 12),
-              Text(
-                'لا توجد نتائج',
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'لم يتم العثور على متاجر أو منتجات حالياً',
-                style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-              ),
-              const SizedBox(height: 20),
-              OutlinedButton.icon(
-                onPressed: () {
-                  final favs = context.read<FavoritesCubit>().state.favoriteStoreNames.toList();
-                  context.read<HomeCubit>().loadInitialData(favs);
-                },
-                icon: const Icon(Icons.refresh),
-                label: const Text('إعادة المحاولة'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: primaryColor,
-                  side: BorderSide(color: primaryColor),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
-/// Product card shown in the home grid when no stores exist
-class _ProductGridCard extends StatelessWidget {
-  final dynamic product; // ProductEntity
+// ── New Store Card List Design ──────────────────────────────────────────────
+class StoreCardRedesigned extends StatelessWidget {
+  final dynamic store;
+  final VoidCallback onFavoriteToggled;
 
-  const _ProductGridCard({required this.product});
+  const StoreCardRedesigned({
+    super.key,
+    required this.store,
+    required this.onFavoriteToggled,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = const Color(0xFFFF4500);
+    final theme = Theme.of(context);
+    final String imageUrl = store.imageUrl ?? '';
+
     return Container(
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product Image
-          Expanded(
-            flex: 3,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              child: product.imageUrl != null && product.imageUrl!.isNotEmpty
-                  ? Image.network(
-                      product.imageUrl!,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
-                    )
-                  : _buildImagePlaceholder(),
-            ),
-          ),
-          // Product Info
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    product.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+          // Top section (Image right + Info left) RTL means info is Right, Image is Left actually!
+          // BUT screenshot shows Info on Right and smaller Image on Left like a ListTile!
+          // Oh wait, screenshot: "مطعم القلعة" on right, small circular/square image on rightmost side.
+          // Wait, Logo is on RIGHTmost side, then title, then "10.33 كيلو" on LEFTmost side.
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Store Image (Logo)
+                Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade200),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: imageUrl.isNotEmpty
+                        ? Image.network(imageUrl, fit: BoxFit.cover)
+                        : Icon(Icons.storefront, color: Colors.grey.shade400, size: 30),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                
+                // Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${product.unitPrice.toStringAsFixed(0)} ${product.currencyName}',
-                        style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                        store.name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      Icon(Icons.add_circle, color: primaryColor, size: 24),
+                      const SizedBox(height: 4),
+                      Text(
+                        'شارع الخمسين جوار سما مول', // Mock address since API might not have it
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      // Tags row
+                      Row(
+                        children: [
+                          _buildTag('توصيل برو', Icons.delivery_dining, theme.primaryColor),
+                          const SizedBox(width: 8),
+                          _buildTag('استلم بنفسك', Icons.shopping_bag_outlined, Colors.black87),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                
+                // Distance & Favorite
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '10.33 كيلو',
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey.shade700, fontSize: 12),
+                    ),
+                    const SizedBox(height: 8),
+                    BlocBuilder<FavoritesCubit, FavoritesState>(
+                      builder: (context, favState) {
+                        final isFavorite = context.read<FavoritesCubit>().isFavorite(store.id);
+                        return GestureDetector(
+                          onTap: onFavoriteToggled,
+                          child: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: isFavorite ? theme.primaryColor : Colors.grey.shade400,
+                            size: 24,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
+          
+          // Divider
+          Divider(color: Colors.grey.shade100, height: 1, thickness: 1),
+          
+          // Bottom section: Closed status or Rating
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade900, // "مغلق" color from screenshot
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text('مغلق', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                ),
+                Row(
+                  children: List.generate(5, (i) => Icon(Icons.star, color: theme.primaryColor, size: 14)),
+                )
+              ],
+            ),
+          )
         ],
       ),
     );
   }
 
-  Widget _buildImagePlaceholder() {
+  Widget _buildTag(String text, IconData icon, Color color) {
     return Container(
-      width: double.infinity,
-      color: Colors.grey.shade100,
-      child: Icon(Icons.fastfood, color: Colors.grey.shade300, size: 48),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 4),
+          Text(text, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color)),
+        ],
+      ),
     );
   }
 }

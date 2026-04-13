@@ -9,8 +9,9 @@ import 'package:my_store/features/product/domain/usecases/get_products_by_store_
 import 'package:my_store/features/product/domain/entities/product_entity.dart';
 import 'package:my_store/features/cart/domain/entities/cart_item_entity.dart';
 import 'package:my_store/features/cart/presentation/bloc/cart_cubit.dart';
-
 import '../cubit/store_details_cubit.dart';
+import '../../../../features/favorites/presentation/cubit/favorites_cubit.dart';
+import '../../../../features/favorites/presentation/cubit/favorites_state.dart';
 
 class StoreDetailsPage extends StatefulWidget {
   final StoreEntity store;
@@ -21,25 +22,18 @@ class StoreDetailsPage extends StatefulWidget {
 }
 
 class _StoreDetailsPageState extends State<StoreDetailsPage> {
-  static const Color _primary = Color(0xFFFF4500);
-
   late final StoreDetailsCubit _cubit;
 
-  // Tracks selected variant index per product
-  final Map<String, int> _selectedVariants = {};
   // Tracks quantity per product
   final Map<String, int> _quantities = {};
 
   @override
   void initState() {
     super.initState();
-
     _cubit = StoreDetailsCubit(
       getProductsByStoreUseCase: di.sl<GetProductsByStoreUseCase>(),
       storeRemoteDataSource: di.sl<StoreRemoteDataSource>(),
     );
-
-    // Load from the pre-fetched StoreEntity — fetches categories & products from API
     _cubit.loadStoreFromEntity(widget.store);
   }
 
@@ -51,6 +45,8 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return BlocProvider.value(
       value: _cubit,
       child: Scaffold(
@@ -70,27 +66,11 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
                     children: [
                       Icon(Icons.error_outline, size: 60, color: Colors.orange.shade400),
                       const SizedBox(height: 16),
-                      Text(
-                        'خطأ في تحميل المتجر',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        state.storeError ?? "متجر غير موجود",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton.icon(
+                      Text('خطأ في تحميل المتجر', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
+                      TextButton(
                         onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.arrow_back),
-                        label: const Text('العودة'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      ),
+                        child: const Text('العودة للخلف'),
+                      )
                     ],
                   ),
                 ),
@@ -103,211 +83,229 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
             return CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
-                // ── Hero AppBar ──────────────────────────────────────────
+                // ── Hero AppBar (Solid Primary Color with Arc at the bottom) ──────────────────────────────────────────
                 SliverAppBar(
-                  expandedHeight: 240,
+                  expandedHeight: 180,
                   pinned: true,
-                  backgroundColor: _primary,
+                  backgroundColor: theme.primaryColor,
                   foregroundColor: Colors.white,
                   elevation: 0,
+                  title: Text(
+                    store.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
+                  ),
+                  centerTitle: true,
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.share_outlined, color: Colors.white),
+                      onPressed: () {},
+                    ),
+                    BlocBuilder<FavoritesCubit, FavoritesState>(
+                      builder: (context, favState) {
+                        final isFav = context.read<FavoritesCubit>().isFavorite(store.id);
+                        return IconButton(
+                          icon: Icon(
+                            isFav ? Icons.favorite : Icons.favorite_border,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            context.read<FavoritesCubit>().toggleFavorite(store.id, store.name);
+                          },
+                        );
+                      },
+                    ),
+                  ],
                   flexibleSpace: FlexibleSpaceBar(
-                    background: Stack(
-                      fit: StackFit.expand,
+                    background: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 40.0, left: 16, right: 16, bottom: 30),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            // Mocking the restaurant rating and match info details in the screenshot
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  const Text('الأسعار مطابقة للمطعم', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                  Container(width: 1, height: 16, color: Colors.white.withOpacity(0.5)),
+                                  Row(
+                                    children: List.generate(5, (index) => const Icon(Icons.star, color: Colors.white, size: 14)),
+                                  ),
+                                  const Column(
+                                    children: [
+                                      Text('التقييمات', style: TextStyle(color: Colors.white, fontSize: 10)),
+                                      Text('( 2249 )', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            // Delivery type toggles mock
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.1),
+                                      borderRadius: const BorderRadius.only(topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
+                                    ),
+                                    child: const Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 16),
+                                        SizedBox(width: 4),
+                                        Text('استلم بنفسك', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange.shade500, // Golden yellow overlay for selection
+                                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
+                                    ),
+                                    child: const Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.delivery_dining, color: Colors.white, size: 18),
+                                        SizedBox(width: 4),
+                                        Text('توصيل', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  bottom: PreferredSize(
+                    preferredSize: const Size.fromHeight(0),
+                    child: Container(
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // ── Delivery Ribbon / Status ──────────────────────────────────────
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          color: Theme.of(context).primaryColor.withOpacity(0.1),
-                          child: store.imageUrl != null && store.imageUrl!.isNotEmpty
-                              ? Image.network(store.imageUrl!, fit: BoxFit.cover, errorBuilder: (_,__,___) => Center(child: Icon(Icons.store, size: 80, color: Theme.of(context).primaryColor)))
-                              : Center(child: Icon(Icons.store, size: 80, color: Theme.of(context).primaryColor)),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade900,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text('مغلق', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                         ),
                         Container(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.black54, Colors.transparent],
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                            ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            children: [
+                              Text('الطلب يستغرق 40 - 55 دقيقة', style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold, fontSize: 13)),
+                              const SizedBox(width: 8),
+                              Icon(Icons.access_time, color: Colors.grey.shade600, size: 18),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                  actions: [
-                    IconButton(
-                      icon: const Icon(Icons.favorite_border, color: Colors.white),
-                      onPressed: () {},
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.share_outlined, color: Colors.white),
-                      onPressed: () {},
-                    ),
-                  ],
                 ),
 
-                // ── Store Info Card ──────────────────────────────────────
-                SliverToBoxAdapter(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 16, offset: const Offset(0, 6)),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Store name
-                        Text(
-                          store.name,
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
-                        ),
-                        const SizedBox(height: 10),
+                const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-                        // Rating row
-                        Row(
-                          children: [
-                            ...List.generate(5, (i) => Icon(
-                              i < 4 ? Icons.star_rounded : Icons.star_border_rounded,
-                              color: Colors.amber,
-                              size: 20,
-                            )),
-                            const SizedBox(width: 8),
-                            Text(
-                              '4.5 (100+)', // Mocked rating for now, update when API supports it
-                              style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        const Divider(),
-                        const SizedBox(height: 12),
-
-                        // Delivery Options Pills
-                        Row(
-                          children: [
-                            for (final option in ["توصيل"]) // Mock delivery options
-                              Padding(
-                                padding: const EdgeInsets.only(left: 8),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: _primary.withOpacity(0.08),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: _primary.withOpacity(0.3)),
-                                  ),
-                                  child: Text(
-                                    option,
-                                    style: const TextStyle(fontSize: 12, color: _primary, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            const Spacer(),
-                            Icon(Icons.access_time, color: Colors.grey.shade500, size: 16),
-                            const SizedBox(width: 4),
-                            Text(
-                              "20-30 دقيقة", // Mock time
-                              style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w600, fontSize: 13),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Icon(Icons.location_on, color: _primary, size: 16),
-                            const SizedBox(width: 4),
-                            // Optional distance (not present in StoreEntity yet)
-                            Text("1.5 كم", style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                            const SizedBox(width: 16),
-                            Icon(Icons.schedule, color: Colors.grey.shade500, size: 16),
-                            const SizedBox(width: 4),
-                            Text("7:00 ص - 11:00 م", style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
                 // ── Item Groups Horizontal Tabs ───────────────────────────────────────────
                 if (state.itemGroups.isNotEmpty)
                   SliverToBoxAdapter(
                     child: SizedBox(
-                      height: 50,
+                      height: 48,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: state.itemGroups.length + 1,
                         itemBuilder: (context, index) {
                           final isAll = index == 0;
                           final group = isAll ? null : state.itemGroups[index - 1];
-                          final groupName = isAll ? "جميع الأصناف" : (group?.groupName ?? 'Unknown');
+                          final groupName = isAll ? "المفضلة" : (group?.groupName ?? 'Unknown');
                           final groupId = isAll ? null : group?.groupId;
                           final isSelected = state.selectedItemGroupId == groupId;
+                          
+                          // We mock icons/images based on name
+                          IconData groupIcon = Icons.favorite_border;
+                          if (groupName.contains('مقبلات')) groupIcon = Icons.tapas;
+                          if (groupName.contains('أكثر')) groupIcon = Icons.local_fire_department;
+                          if (groupName.contains('رئيسية')) groupIcon = Icons.restaurant;
 
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8.0, top: 8.0, bottom: 8.0),
-                            child: FilterChip(
-                              label: Text(groupName, style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontWeight: FontWeight.bold)),
-                              selected: isSelected,
-                              onSelected: (_) => _cubit.selectTab(store.id, groupId),
-                              backgroundColor: Colors.grey.shade100,
-                              selectedColor: _primary,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: isSelected ? _primary : Colors.grey.shade300)),
+                          return GestureDetector(
+                            onTap: () => _cubit.selectTab(store.id, groupId),
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 8), // Replaced padding to standard RTL setup
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: isSelected ? Colors.orange.shade500 : Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              alignment: Alignment.center,
+                              child: Row(
+                                children: [
+                                  Text(
+                                    groupName,
+                                    style: TextStyle(
+                                      color: isSelected ? Colors.white : Colors.grey.shade800,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    )
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    groupIcon,
+                                    color: isSelected ? Colors.white : theme.primaryColor,
+                                    size: 18,
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
                       ),
                     ),
-                  )
-                else
-                   const SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      child: Text('جميع الأصناف', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    ),
                   ),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
                 // ── Product List ─────────────────────────────────────────
                 if (state.isLoadingProducts)
                   const SliverToBoxAdapter(
                     child: Padding(padding: EdgeInsets.all(40), child: Center(child: CircularProgressIndicator())),
-                  )
-                else if (state.productsError != null)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(40),
-                      child: Center(
-                        child: Column(
-                          children: [
-                            Icon(Icons.error_outline, size: 50, color: Colors.orange.shade300),
-                            const SizedBox(height: 12),
-                            const Text(
-                              "لا توجد أصناف متاحة حالياً",
-                              style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "يرجى المحاولة لاحقاً",
-                              style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                            ),
-                            const SizedBox(height: 16),
-                            OutlinedButton.icon(
-                              onPressed: () => _cubit.fetchProducts(store.id),
-                              icon: const Icon(Icons.refresh, size: 18),
-                              label: const Text('إعادة المحاولة'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: _primary,
-                                side: BorderSide(color: _primary),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                   )
                 else if (products.isEmpty)
                   SliverToBoxAdapter(
@@ -318,15 +316,7 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
                           children: [
                             Icon(Icons.restaurant_menu, size: 50, color: Colors.grey.shade300),
                             const SizedBox(height: 12),
-                            const Text(
-                              "لا توجد أصناف متاحة",
-                              style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "سيتم إضافة الأصناف قريباً",
-                              style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                            ),
+                            const Text("لا توجد أصناف متاحة", style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -340,48 +330,29 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
                         (context, index) {
                           final product = products[index];
                           final prodIdStr = product.id.toString();
-                          return _ProductCard(
+                          return _ProductListCard(
                             product: product,
                             store: store,
-                            // we pass 0 for variants because we don't have variants right now.
-                            selectedVariantIndex: _selectedVariants[prodIdStr] ?? 0,
                             quantity: _quantities[prodIdStr] ?? 1,
-                            onVariantChanged: (variantIdx) {
-                              setState(() => _selectedVariants[prodIdStr] = variantIdx);
-                            },
-                            onQuantityChanged: (qty) {
-                              setState(() => _quantities[prodIdStr] = qty);
-                            },
+                            onQuantityChanged: (qty) => setState(() => _quantities[prodIdStr] = qty),
                             onAddToCart: () {
                               final qty = _quantities[prodIdStr] ?? 1;
-                              final price = product.unitPrice;
-                              
                               final cartItem = CartItemEntity(
-                                id: const Uuid().v4(), // Generate unique ID for cart item
+                                id: const Uuid().v4(),
                                 productId: product.id,
                                 productName: product.name,
                                 quantity: qty,
-                                unitPrice: price,
-                                totalPrice: price * qty,
+                                unitPrice: product.unitPrice,
+                                totalPrice: product.unitPrice * qty,
                                 storeId: store.id,
                                 storeName: store.name,
                               );
-                              
                               context.read<CartCubit>().addItem(cartItem);
                               
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('تمت إضافة $qty ${product.name} إلى السلة'),
+                                  content: Text('تمت إضافة ${product.name} للسلة'),
                                   backgroundColor: Colors.green.shade600,
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  action: SnackBarAction(
-                                    label: 'عرض السلة',
-                                    textColor: Colors.white,
-                                    onPressed: () {
-                                      // Optional: Navigate to cart
-                                    },
-                                  ),
                                 ),
                               );
                             },
@@ -400,126 +371,168 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
   }
 }
 
-// ── Product Card Widget ────────────────────────────────────────────────
-class _ProductCard extends StatelessWidget {
+// ── Redesigned Product List Card ────────────────────────────────────────────────
+class _ProductListCard extends StatelessWidget {
   final ProductEntity product;
   final StoreEntity store;
-  final int selectedVariantIndex;
   final int quantity;
-  final ValueChanged<int> onVariantChanged;
   final ValueChanged<int> onQuantityChanged;
   final VoidCallback onAddToCart;
 
-  const _ProductCard({
+  const _ProductListCard({
     required this.product,
     required this.store,
-    required this.selectedVariantIndex,
     required this.quantity,
-    required this.onVariantChanged,
     required this.onQuantityChanged,
     required this.onAddToCart,
   });
 
-  static const Color _primary = Color(0xFFFF4500);
-
   @override
   Widget build(BuildContext context) {
-    // If no variants in Entity, we can use base product. 
-    // In Entity, we might have modifiers or variants later.
-    final price = product.unitPrice;
-    final totalPrice = price * quantity;
+    final theme = Theme.of(context);
+    final String imageUrl = product.imageUrl ?? 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=300&auto=format&fit=crop';
+    final isOption = product.name.contains('نصف') || product.name.contains('ربع');
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.white, // In screenshot it looks like slightly greyish white card
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2)),
         ],
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Product image
-          SizedBox(
-            height: 160,
-            child: product.imageUrl != null && product.imageUrl!.isNotEmpty
-                ? Image.network(product.imageUrl!, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: Colors.grey.shade200, child: Icon(Icons.fastfood, size: 50, color: Colors.grey.shade400)))
-                : Container(color: Colors.grey.shade200, child: Icon(Icons.fastfood, size: 50, color: Colors.grey.shade400)),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Name + description
-                Text(product.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                // Since product doesn't have a description right now, we skip it
-                // You can add logic for description here when available in API
-
-                const SizedBox(height: 14),
-
-                // the hasVariants block is removed because we mock hasVariants to false
-
-                const SizedBox(height: 16),
-
-                // Quantity + Add to Cart Row
-                Row(
-                  children: [
-                    // Quantity selector
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-                            padding: EdgeInsets.zero,
-                            icon: const Icon(Icons.remove, size: 18),
-                            onPressed: () {
-                              if (quantity > 1) onQuantityChanged(quantity - 1);
-                            },
-                          ),
-                          Text(quantity.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          IconButton(
-                            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-                            padding: EdgeInsets.zero,
-                            icon: const Icon(Icons.add, size: 18, color: _primary),
-                            onPressed: () => onQuantityChanged(quantity + 1),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    // Add to cart button
-                    Expanded(
-                      child: SizedBox(
-                        height: 44,
-                        child: ElevatedButton.icon(
-                          onPressed: onAddToCart,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _primary,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            elevation: 0,
-                          ),
-                          icon: const Icon(Icons.shopping_cart_outlined, size: 18, color: Colors.white),
-                          label: Text(
-                            'أضف للسلة  •  $totalPrice',
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14),
-                          ),
+          // RIGHT SIDE: Image + Favorite icon (RTL visually means it's the start, but we use TextDirection.rtl automatically)
+          Stack(
+            children: [
+              Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(16),
+                  image: DecorationImage(
+                    image: NetworkImage(imageUrl),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: BlocBuilder<FavoritesCubit, FavoritesState>(
+                  builder: (context, favState) {
+                    final isFav = context.read<FavoritesCubit>().isFavorite(product.id.toString());
+                    return GestureDetector(
+                      onTap: () {
+                        context.read<FavoritesCubit>().toggleFavorite(product.id.toString(), product.name);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.8),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          size: 16,
+                          color: theme.primaryColor,
                         ),
                       ),
-                    ),
-                  ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(width: 12),
+          
+          // MIDDLE: Name
+          Expanded(
+            child: Text(
+              product.name,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          
+          // LEFT SIDE: Price and Action Controls
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    product.unitPrice.toStringAsFixed(0),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(width: 2),
+                  const Text('ريال', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                ],
+              ),
+              if (!isOption) ...[
+                const SizedBox(height: 8),
+                // Quantity Selector
+                Container(
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InkWell(
+                        onTap: () { if (quantity > 1) onQuantityChanged(quantity - 1); },
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          child: Icon(Icons.remove, size: 14, color: Colors.black54),
+                        ),
+                      ),
+                      Text(
+                        quantity.toString(),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                      InkWell(
+                        onTap: () => onQuantityChanged(quantity + 1),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Icon(Icons.add, size: 14, color: theme.primaryColor),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 32,
+                width: 100,
+                child: ElevatedButton(
+                  onPressed: isOption ? () {} : onAddToCart,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isOption ? Colors.orange.shade400 : theme.primaryColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    isOption ? 'عرض الخيارات' : 'أضف للسلة',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
