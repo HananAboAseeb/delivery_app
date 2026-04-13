@@ -21,7 +21,7 @@ class ThemeConfig extends Equatable {
     return const ThemeConfig(
       // --- تغيير اللون الأساسي للتطبيق من هنا ---
       // غيّر الرمز '#E53935' للون الذي تريده.
-      primaryColorHex: '#66adde',
+      primaryColorHex: '#FF5722',
       secondaryColorHex: '#FF8A80',
       logoUrl: null,
       appName: 'خلك مرتاح',

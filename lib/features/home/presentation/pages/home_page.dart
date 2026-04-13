@@ -116,7 +116,7 @@ class _HomeTabState extends State<HomeTab> {
             SliverAppBar(
               pinned: true,
               backgroundColor: theme.primaryColor,
-              expandedHeight: 140, // Reduced from 180 as requested
+              expandedHeight: 170, // Increased slightly to prevent bottom overflow
               elevation: 0,
               flexibleSpace: FlexibleSpaceBar(
                 background: Stack(
@@ -188,7 +188,7 @@ class _HomeTabState extends State<HomeTab> {
                                 )
                               ],
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 4),
                             // Location text
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -206,7 +206,7 @@ class _HomeTabState extends State<HomeTab> {
                                 const Icon(Icons.keyboard_arrow_down, color: Colors.white70, size: 18),
                               ],
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 6),
                             // Elegant Inner Search Bar
                             AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
