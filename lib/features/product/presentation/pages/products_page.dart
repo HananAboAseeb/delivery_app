@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../bloc/product_bloc.dart';
-import '../../../cart/presentation/bloc/cart_cubit.dart';
-import '../../../cart/domain/entities/cart_item_entity.dart';
+import '../../logic/product_bloc.dart';
+import 'package:my_store/features/cart/logic/cart_cubit.dart';
+import 'package:my_store/features/cart/domain/entities/cart_item_entity.dart';
 import 'package:uuid/uuid.dart';
 
 class ProductsPage extends StatefulWidget {
@@ -24,7 +24,8 @@ class _ProductsPageState extends State<ProductsPage> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
       context.read<ProductBloc>().add(const FetchProductsEvent());
     }
   }
@@ -40,7 +41,9 @@ class _ProductsPageState extends State<ProductsPage> {
           } else if (state is ProductsLoaded) {
             return RefreshIndicator(
               onRefresh: () async {
-                context.read<ProductBloc>().add(const FetchProductsEvent(isRefresh: true));
+                context
+                    .read<ProductBloc>()
+                    .add(const FetchProductsEvent(isRefresh: true));
               },
               child: GridView.builder(
                 controller: _scrollController,
@@ -51,7 +54,8 @@ class _ProductsPageState extends State<ProductsPage> {
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
                 ),
-                itemCount: state.products.length + (state.hasReachedMax ? 0 : 1),
+                itemCount:
+                    state.products.length + (state.hasReachedMax ? 0 : 1),
                 itemBuilder: (context, index) {
                   if (index >= state.products.length) {
                     return const Center(child: CircularProgressIndicator());
@@ -64,9 +68,11 @@ class _ProductsPageState extends State<ProductsPage> {
                       children: [
                         Expanded(
                           child: CachedNetworkImage(
-                            imageUrl: product.imageUrl ?? 'https://via.placeholder.com/150',
+                            imageUrl: product.imageUrl ??
+                                'https://via.placeholder.com/150',
                             fit: BoxFit.cover,
-                            errorWidget: (context, url, error) => const Icon(Icons.error),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
                           ),
                         ),
                         Padding(
@@ -74,22 +80,30 @@ class _ProductsPageState extends State<ProductsPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis),
+                              Text(product.name,
+                                  maxLines: 2, overflow: TextOverflow.ellipsis),
                               const SizedBox(height: 4),
-                              Text('\$${product.unitPrice.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text('\$${product.unitPrice.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
                               ElevatedButton(
                                 onPressed: () {
-                                  context.read<CartCubit>().addItem(CartItemEntity(
-                                    id: const Uuid().v4(),
-                                    productId: product.id,
-                                    productName: product.name,
-                                    quantity: 1,
-                                    unitPrice: product.unitPrice,
-                                    totalPrice: product.unitPrice,
-                                    storeId: 'Store1', // For demo
-                                    storeName: 'Main Store',
-                                  ));
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to Cart'), duration: Duration(seconds: 1)));
+                                  context
+                                      .read<CartCubit>()
+                                      .addItem(CartItemEntity(
+                                        id: const Uuid().v4(),
+                                        productId: product.id,
+                                        productName: product.name,
+                                        quantity: 1,
+                                        unitPrice: product.unitPrice,
+                                        totalPrice: product.unitPrice,
+                                        storeId: 'Store1', // For demo
+                                        storeName: 'Main Store',
+                                      ));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text('Added to Cart'),
+                                          duration: Duration(seconds: 1)));
                                 },
                                 child: const Text('Add to Cart'),
                               )

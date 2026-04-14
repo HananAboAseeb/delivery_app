@@ -41,7 +41,9 @@ class StoreDetailsState extends Equatable {
       isLoadingStore: isLoadingStore ?? this.isLoadingStore,
       storeError: storeError ?? this.storeError,
       itemGroups: itemGroups ?? this.itemGroups,
-      selectedItemGroupId: clearSelectedItemGroupId ? null : (selectedItemGroupId ?? this.selectedItemGroupId),
+      selectedItemGroupId: clearSelectedItemGroupId
+          ? null
+          : (selectedItemGroupId ?? this.selectedItemGroupId),
       products: products ?? this.products,
       isLoadingProducts: isLoadingProducts ?? this.isLoadingProducts,
       productsError: productsError ?? this.productsError,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:my_store/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:my_store/features/auth/logic/auth_bloc.dart';
 import 'package:my_store/core/theme/theme_cubit.dart';
 
 class SplashPage extends StatefulWidget {
@@ -16,9 +16,9 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    // 1. تحميل الثيم المحفوظ 
+    // 1. تحميل الثيم المحفوظ
     context.read<ThemeCubit>().loadTheme();
-    
+
     // 2. الانتظار ثانيتين ثم اتخاذ القرار
     _startSplashLogic();
   }

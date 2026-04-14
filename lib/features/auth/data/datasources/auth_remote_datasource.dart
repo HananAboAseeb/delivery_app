@@ -6,7 +6,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String username, String password);
-  Future<UserModel> register(String name, String email, String phone, String password);
+  Future<UserModel> register(
+      String name, String email, String phone, String password);
   Future<void> logout();
   Future<UserModel?> getCurrentUser();
   Future<UserModel> updateProfile(UserModel user);
@@ -57,13 +58,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
 
       // Use profile data if available, otherwise just use the entered username
-      final name    = profileData?['userName'] ?? profileData?['name'] ?? username;
-      final email   = profileData?['email'] ?? '';
-      final phone   = profileData?['phoneNumber'] ?? username;
-      final id      = profileData?['id']?.toString() ?? '';
+      final name = profileData?['userName'] ?? profileData?['name'] ?? username;
+      final email = profileData?['email'] ?? '';
+      final phone = profileData?['phoneNumber'] ?? username;
+      final id = profileData?['id']?.toString() ?? '';
 
       // Step 4: Cache the profile locally so ProfileCubit can read it instantly
-      await storage.write(key: 'profile_name',  value: name);
+      await storage.write(key: 'profile_name', value: name);
       await storage.write(key: 'profile_email', value: email);
       await storage.write(key: 'profile_phone', value: phone);
 
@@ -76,7 +77,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         walletId: '',
       );
     } on DioException catch (e) {
-      throw ServerException(message: 'Token Error: ${e.response?.statusCode} - ${e.message}');
+      throw ServerException(
+          message: 'Token Error: ${e.response?.statusCode} - ${e.message}');
     } catch (e) {
       if (e is ServerException) rethrow;
       throw ServerException(message: 'Login failed: $e');
@@ -84,19 +86,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> register(String name, String email, String phone, String password) async {
+  Future<UserModel> register(
+      String name, String email, String phone, String password) async {
     try {
       await apiClient.dio.post(
         '/api/UserManagement/cre-tech-register/register',
         data: {
           'userName': name,
           'email': email,
-          'emailAddress': email, // Add both just in case ABP expects emailAddress
+          'emailAddress':
+              email, // Add both just in case ABP expects emailAddress
           'phoneNumber': phone,
           'password': password,
         },
       );
-      
+
       // Auto-login to fetch token and cache the new user profile correctly
       return await login(phone, password);
     } on DioException catch (e) {
@@ -104,12 +108,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       String serverMessage = e.message ?? '';
       if (data != null) {
         if (data is Map && data['error'] != null) {
-          serverMessage = data['error']['message'] ?? data['error']['details'] ?? data.toString();
+          serverMessage = data['error']['message'] ??
+              data['error']['details'] ??
+              data.toString();
         } else {
           serverMessage = data.toString();
         }
       }
-      throw ServerException(message: 'Register failed: ${e.response?.statusCode} - $serverMessage');
+      throw ServerException(
+          message:
+              'Register failed: ${e.response?.statusCode} - $serverMessage');
     } catch (e) {
       throw ServerException(message: 'Register failed: $e');
     }
@@ -127,7 +135,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final response = await apiClient.dio.get('/api/account/my-profile');
       final data = response.data;
       if (data == null) return null;
-      
+
       return UserModel(
         id: data['id']?.toString() ?? '',
         name: data['userName'] ?? data['name'] ?? 'User',
@@ -152,7 +160,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'phoneNumber': user.phone,
         },
       );
-      
+
       final data = response.data;
       return UserModel(
         id: user.id,

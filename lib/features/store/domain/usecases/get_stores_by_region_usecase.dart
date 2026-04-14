@@ -3,7 +3,8 @@ import '../entities/store_entity.dart';
 import '../repositories/store_repository.dart';
 import 'package:equatable/equatable.dart';
 
-class GetStoresByRegionUseCase implements UseCase<List<StoreEntity>, GetStoresByRegionParams> {
+class GetStoresByRegionUseCase
+    implements UseCase<List<StoreEntity>, GetStoresByRegionParams> {
   final StoreRepository repository;
 
   GetStoresByRegionUseCase(this.repository);

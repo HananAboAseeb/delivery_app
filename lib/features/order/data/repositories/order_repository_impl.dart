@@ -34,7 +34,8 @@ class OrderRepositoryImpl implements OrderRepository {
   @override
   Future<List<OrderEntity>> getOrders({String? status, DateTime? date}) async {
     try {
-      final remoteOrders = await remoteDataSource.getOrders(status: status, date: date);
+      final remoteOrders =
+          await remoteDataSource.getOrders(status: status, date: date);
       // Cache each order
       for (final order in remoteOrders) {
         await localDataSource.cacheOrder(order);

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../bloc/auth_bloc.dart';
+import '../../logic/auth_bloc.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/social_login_button.dart';
 
@@ -93,7 +93,8 @@ class LoginPage extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.adjust_rounded, color: theme.primaryColor, size: 28),
+                            Icon(Icons.adjust_rounded,
+                                color: theme.primaryColor, size: 28),
                             const SizedBox(width: 8),
                             const Text(
                               'WASL',
@@ -106,7 +107,7 @@ class LoginPage extends StatelessWidget {
                             ),
                           ],
                         ),
-                        
+
                         SizedBox(height: size.height * 0.18),
 
                         // --- Titles ---
@@ -133,7 +134,7 @@ class LoginPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 32),
                         Divider(color: Colors.grey.shade200, thickness: 1),
                         const SizedBox(height: 24),
@@ -146,7 +147,7 @@ class LoginPage extends StatelessWidget {
                           prefixIcon: Icons.email_outlined,
                         ),
                         const SizedBox(height: 20),
-                        
+
                         // --- Password Input ---
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -177,7 +178,8 @@ class LoginPage extends StatelessWidget {
                           prefixIcon: Icons.lock_outline,
                           isPassword: true,
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'الرجاء إدخال كلمة المرور';
+                            if (v == null || v.isEmpty)
+                              return 'الرجاء إدخال كلمة المرور';
                             return null;
                           },
                         ),
@@ -190,7 +192,8 @@ class LoginPage extends StatelessWidget {
                             backgroundColor: theme.primaryColor,
                             padding: const EdgeInsets.symmetric(vertical: 18),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30), // Pill shape
+                              borderRadius:
+                                  BorderRadius.circular(30), // Pill shape
                             ),
                             elevation: 8,
                             shadowColor: theme.primaryColor.withOpacity(0.5),
@@ -200,7 +203,8 @@ class LoginPage extends StatelessWidget {
                               : () {
                                   if (_formKey.currentState!.validate()) {
                                     context.read<AuthBloc>().add(
-                                          LoginEvent(_emailController.text, _passwordController.text),
+                                          LoginEvent(_emailController.text,
+                                              _passwordController.text),
                                         );
                                   }
                                 },
@@ -208,34 +212,45 @@ class LoginPage extends StatelessWidget {
                               ? const SizedBox(
                                   height: 24,
                                   width: 24,
-                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white, strokeWidth: 3),
                                 )
                               : const Text(
                                   'تسجيل الدخول',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
                                 ),
                         ),
-                        
+
                         const SizedBox(height: 16),
                         TextButton(
                           onPressed: () => context.push('/register'),
                           child: const Text('ليس لديك حساب؟ إنشاء حساب جديد'),
                         ),
-                        
+
                         const SizedBox(height: 16),
 
                         // --- Social Login Section ---
                         Row(
                           children: [
-                            Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
+                            Expanded(
+                                child: Divider(
+                                    color: Colors.grey.shade300, thickness: 1)),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                               child: Text(
                                 'أو تسجيل الدخول عبر',
-                                style: TextStyle(color: Colors.grey.shade400, fontSize: 12, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600),
                               ),
                             ),
-                            Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
+                            Expanded(
+                                child: Divider(
+                                    color: Colors.grey.shade300, thickness: 1)),
                           ],
                         ),
                         const SizedBox(height: 24),

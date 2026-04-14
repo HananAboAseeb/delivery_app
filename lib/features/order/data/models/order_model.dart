@@ -47,10 +47,14 @@ class OrderModel extends OrderEntity {
     return OrderModel(
       id: json['id'] ?? '',
       masterOrderNumber: json['masterOrderNumber'] ?? json['orderNo'] ?? '',
-      totalPrice: (json['totalPrice'] ?? json['totalAmount'] ?? json['grandTotal'] ?? 0.0).toDouble(),
+      totalPrice: (json['totalPrice'] ??
+              json['totalAmount'] ??
+              json['grandTotal'] ??
+              0.0)
+          .toDouble(),
       status: json['status']?.toString() ?? 'Pending',
-      creationTime: json['creationTime'] != null 
-          ? DateTime.tryParse(json['creationTime']) ?? DateTime.now() 
+      creationTime: json['creationTime'] != null
+          ? DateTime.tryParse(json['creationTime']) ?? DateTime.now()
           : DateTime.now(),
       currency: json['currency'] ?? json['currencyName'] ?? '',
     );

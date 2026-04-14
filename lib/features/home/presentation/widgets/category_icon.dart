@@ -37,15 +37,26 @@ class CategoryIcon extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: borderColor, width: 2.5),
                 boxShadow: isSelected
-                    ? [BoxShadow(color: theme.primaryColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]
-                    : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 4, offset: const Offset(0, 2))],
+                    ? [
+                        BoxShadow(
+                            color: theme.primaryColor.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4))
+                      ]
+                    : [
+                        BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2))
+                      ],
               ),
               child: ClipOval(
                 child: isSelected
                     ? Image.network(
                         imageUrl,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, color: Colors.grey),
+                        errorBuilder: (_, __, ___) =>
+                            const Icon(Icons.fastfood, color: Colors.grey),
                       )
                     : ColorFiltered(
                         colorFilter: const ColorFilter.mode(
@@ -55,7 +66,8 @@ class CategoryIcon extends StatelessWidget {
                         child: Image.network(
                           imageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, color: Colors.grey),
+                          errorBuilder: (_, __, ___) =>
+                              const Icon(Icons.fastfood, color: Colors.grey),
                         ),
                       ),
               ),

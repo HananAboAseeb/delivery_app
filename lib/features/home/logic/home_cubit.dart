@@ -2,12 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../../features/store/domain/entities/store_entity.dart';
-import '../../../../features/store/domain/usecases/get_store_groups_usecase.dart';
-import '../../../../features/store/domain/usecases/get_stores_by_group_usecase.dart';
-import '../../../../features/store/domain/usecases/get_stores_usecase.dart';
-import '../../../../features/product/domain/entities/product_entity.dart';
-import '../../../../features/product/domain/repositories/product_repository.dart';
+import 'package:my_store/features/store/domain/entities/store_entity.dart';
+import 'package:my_store/features/store/domain/usecases/get_store_groups_usecase.dart';
+import 'package:my_store/features/store/domain/usecases/get_stores_by_group_usecase.dart';
+import 'package:my_store/features/store/domain/usecases/get_stores_usecase.dart';
+import 'package:my_store/features/product/domain/entities/product_entity.dart';
+import 'package:my_store/features/product/domain/repositories/product_repository.dart';
 
 import 'package:my_store/core/usecases/usecase.dart';
 
@@ -111,7 +111,8 @@ class HomeCubit extends Cubit<HomeState> {
       final products = await productRepository!.getProducts(1, 50);
       debugPrint('✅ [HomeCubit] Got ${products.length} products');
       for (final p in products.take(3)) {
-        debugPrint('   → Product: ${p.name} - ${p.unitPrice} ${p.currencyName}');
+        debugPrint(
+            '   → Product: ${p.name} - ${p.unitPrice} ${p.currencyName}');
       }
       _allLoadedProductsCache = products;
       emit(state.copyWith(
@@ -144,7 +145,8 @@ class HomeCubit extends Cubit<HomeState> {
 
     // Text search filtering
     if (q.trim().isNotEmpty) {
-      filteredList = filteredList.where((store) => store.name.contains(q.trim())).toList();
+      filteredList =
+          filteredList.where((store) => store.name.contains(q.trim())).toList();
     }
 
     // Filter by tab
@@ -155,7 +157,8 @@ class HomeCubit extends Cubit<HomeState> {
         filteredList.shuffle();
         break;
       case 'المفضلة':
-        filteredList = filteredList.where((store) => favs.contains(store.id)).toList();
+        filteredList =
+            filteredList.where((store) => favs.contains(store.id)).toList();
         break;
       case 'الكل':
       default:
@@ -165,7 +168,8 @@ class HomeCubit extends Cubit<HomeState> {
     // Also filter products by search if applicable
     List<ProductEntity> filteredProducts = List.from(_allLoadedProductsCache);
     if (q.trim().isNotEmpty) {
-      filteredProducts = filteredProducts.where((p) => p.name.contains(q.trim())).toList();
+      filteredProducts =
+          filteredProducts.where((p) => p.name.contains(q.trim())).toList();
     }
 
     emit(state.copyWith(
@@ -204,8 +208,13 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> loadInitialData(List<String> initialFavs) async {
-    _applyFiltersAndSort(category: 'الكل', categoryId: 'clear', filter: 'الكل', searchQuery: '', currentFavorites: initialFavs);
-    
+    _applyFiltersAndSort(
+        category: 'الكل',
+        categoryId: 'clear',
+        filter: 'الكل',
+        searchQuery: '',
+        currentFavorites: initialFavs);
+
     // Fetch groups first
     await fetchStoreGroups();
 
@@ -219,14 +228,15 @@ class HomeCubit extends Cubit<HomeState> {
         (g) => (g.name ?? '').contains('مطاعم'),
         orElse: () => state.storeGroups.first,
       );
-      
-      debugPrint('🎯 [HomeCubit] Auto-selecting default group: ${restaurantGroup.name}');
-      
+
+      debugPrint(
+          '🎯 [HomeCubit] Auto-selecting default group: ${restaurantGroup.name}');
+
       _applyFiltersAndSort(
         category: restaurantGroup.name ?? 'الكل',
         categoryId: restaurantGroup.id,
       );
-      
+
       // Fetch stores for the auto-selected group + products in parallel
       await Future.wait([
         fetchStores(groupId: restaurantGroup.id),
@@ -239,7 +249,8 @@ class HomeCubit extends Cubit<HomeState> {
         fetchProducts(),
       ]);
     }
-    
-    debugPrint('🏠 [HomeCubit] Initial data loaded → stores: ${_allLoadedStoresCache.length}, products: ${_allLoadedProductsCache.length}');
+
+    debugPrint(
+        '🏠 [HomeCubit] Initial data loaded → stores: ${_allLoadedStoresCache.length}, products: ${_allLoadedProductsCache.length}');
   }
 }

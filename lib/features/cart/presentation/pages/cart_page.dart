@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_store/features/cart/presentation/bloc/cart_cubit.dart';
+import 'package:my_store/features/cart/logic/cart_cubit.dart';
 import 'package:my_store/features/cart/domain/entities/cart_item_entity.dart';
 
 class CartPage extends StatefulWidget {
@@ -40,7 +40,8 @@ class _CartPageState extends State<CartPage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text('السلة', style: TextStyle(fontWeight: FontWeight.bold)),
+        title:
+            const Text('السلة', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: BlocBuilder<CartCubit, CartState>(
@@ -48,20 +49,29 @@ class _CartPageState extends State<CartPage> {
           if (state is CartLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is CartError) {
-            return Center(child: Text("حدث خطأ: ${state.message}", style: const TextStyle(color: Colors.red)));
+            return Center(
+                child: Text("حدث خطأ: ${state.message}",
+                    style: const TextStyle(color: Colors.red)));
           } else if (state is CartLoaded) {
             final items = state.items;
-            
+
             if (items.isEmpty) {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.shopping_cart_outlined, size: 100, color: Colors.grey.shade300),
+                    Icon(Icons.shopping_cart_outlined,
+                        size: 100, color: Colors.grey.shade300),
                     const SizedBox(height: 24),
-                    Text('السلة فارغة', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.grey.shade800)),
+                    Text('السلة فارغة',
+                        style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade800)),
                     const SizedBox(height: 12),
-                    Text('قم بإضافة بعض المنتجات لتظهر هنا', style: TextStyle(fontSize: 16, color: Colors.grey.shade500)),
+                    Text('قم بإضافة بعض المنتجات لتظهر هنا',
+                        style: TextStyle(
+                            fontSize: 16, color: Colors.grey.shade500)),
                   ],
                 ),
               );
@@ -79,7 +89,8 @@ class _CartPageState extends State<CartPage> {
                     itemBuilder: (context, index) {
                       final item = items[index];
                       // Use a placeholder if there's no item image passed down right now
-                      final imageUrl = "https://ui-avatars.com/api/?name=${Uri.encodeComponent(item.productName)}&background=random&size=128";
+                      final imageUrl =
+                          "https://ui-avatars.com/api/?name=${Uri.encodeComponent(item.productName)}&background=random&size=128";
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 16),
@@ -88,14 +99,18 @@ class _CartPageState extends State<CartPage> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+                            BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4)),
                           ],
                         ),
                         child: Row(
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(12),
-                              child: Image.network(imageUrl, width: 80, height: 80, fit: BoxFit.cover),
+                              child: Image.network(imageUrl,
+                                  width: 80, height: 80, fit: BoxFit.cover),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
@@ -103,12 +118,15 @@ class _CartPageState extends State<CartPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: Text(
                                           item.productName,
-                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                          style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -116,26 +134,44 @@ class _CartPageState extends State<CartPage> {
                                       IconButton(
                                         constraints: const BoxConstraints(),
                                         padding: EdgeInsets.zero,
-                                        icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                        icon: const Icon(Icons.delete_outline,
+                                            color: Colors.red),
                                         onPressed: () => _removeItem(item.id),
                                       ),
                                     ],
                                   ),
                                   Text(
                                     item.storeName,
-                                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade500),
                                   ),
                                   const SizedBox(height: 4),
-                                  Text('${item.unitPrice.toStringAsFixed(0)} ر.ي', style: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                                  Text(
+                                      '${item.unitPrice.toStringAsFixed(0)} ر.ي',
+                                      style: TextStyle(
+                                          color: theme.primaryColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16)),
                                   const SizedBox(height: 8),
                                   Row(
                                     children: [
-                                      _qtyButton(Icons.remove, () => _updateQuantity(item.id, item.quantity, -1)),
+                                      _qtyButton(
+                                          Icons.remove,
+                                          () => _updateQuantity(
+                                              item.id, item.quantity, -1)),
                                       Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                                        child: Text(item.quantity.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16),
+                                        child: Text(item.quantity.toString(),
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16)),
                                       ),
-                                      _qtyButton(Icons.add, () => _updateQuantity(item.id, item.quantity, 1)),
+                                      _qtyButton(
+                                          Icons.add,
+                                          () => _updateQuantity(
+                                              item.id, item.quantity, 1)),
                                     ],
                                   )
                                 ],
@@ -154,9 +190,13 @@ class _CartPageState extends State<CartPage> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, -5))
                     ],
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(24)),
                   ),
                   child: SafeArea(
                     child: Column(
@@ -171,8 +211,14 @@ class _CartPageState extends State<CartPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('الإجمالي', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                            Text('${total.toStringAsFixed(0)} ر.ي', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: theme.primaryColor)),
+                            const Text('الإجمالي',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold)),
+                            Text('${total.toStringAsFixed(0)} ر.ي',
+                                style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w900,
+                                    color: theme.primaryColor)),
                           ],
                         ),
                         const SizedBox(height: 24),
@@ -185,19 +231,26 @@ class _CartPageState extends State<CartPage> {
                               context.read<CartCubit>().clearCart();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: const Text('تم استقبال الطلب بنجاح! شكراً لك'),
+                                  content: const Text(
+                                      'تم استقبال الطلب بنجاح! شكراً لك'),
                                   backgroundColor: Colors.green.shade600,
                                   behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12)),
                                 ),
                               );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: theme.primaryColor,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16)),
                               elevation: 0,
                             ),
-                            child: const Text('إتمام الطلب', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                            child: const Text('إتمام الطلب',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white)),
                           ),
                         ),
                       ],
@@ -218,8 +271,10 @@ class _CartPageState extends State<CartPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
-        Text('${amount.toStringAsFixed(0)} ر.ي', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        Text(title,
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+        Text('${amount.toStringAsFixed(0)} ر.ي',
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
       ],
     );
   }

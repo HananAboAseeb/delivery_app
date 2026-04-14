@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../bloc/auth_bloc.dart';
+import '../../logic/auth_bloc.dart';
 import '../widgets/custom_text_field.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -17,7 +17,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  
+
   String _selectedCountryCode = '+967'; // Default Yemen
 
   @override
@@ -54,13 +54,16 @@ class _RegisterPageState extends State<RegisterPage> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('تم إنشاء الحساب وتسجيل الدخول بنجاح!'), backgroundColor: Colors.green),
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('تم إنشاء الحساب وتسجيل الدخول بنجاح!'),
+                  backgroundColor: Colors.green),
             );
             context.go('/home');
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+              SnackBar(
+                  content: Text(state.message), backgroundColor: Colors.red),
             );
           }
         },
@@ -97,7 +100,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
               ),
-
               SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -110,7 +112,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.adjust_rounded, color: theme.primaryColor, size: 28),
+                            Icon(Icons.adjust_rounded,
+                                color: theme.primaryColor, size: 28),
                             const SizedBox(width: 8),
                             const Text(
                               'WASL',
@@ -123,7 +126,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                           ],
                         ),
-                        
+
                         SizedBox(height: size.height * 0.12),
 
                         const Text(
@@ -149,7 +152,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 32),
                         Divider(color: Colors.grey.shade200, thickness: 1),
                         const SizedBox(height: 24),
@@ -161,7 +164,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           labelText: 'أحمد محمد',
                           prefixIcon: Icons.person_outline,
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'الرجاء إدخال الاسم';
+                            if (v == null || v.isEmpty)
+                              return 'الرجاء إدخال الاسم';
                             return null;
                           },
                         ),
@@ -174,7 +178,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           children: [
                             Container(
                               height: 56,
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade50,
                                 borderRadius: BorderRadius.circular(12),
@@ -183,15 +188,27 @@ class _RegisterPageState extends State<RegisterPage> {
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<String>(
                                     value: _selectedCountryCode,
-                                    icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 16),
+                                    icon: const Icon(Icons.arrow_drop_down,
+                                        color: Colors.grey),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                        fontSize: 16),
                                     items: const [
-                                      DropdownMenuItem(value: '+967', child: Text('🇾🇪 +967')),
-                                      DropdownMenuItem(value: '+966', child: Text('🇸🇦 +966')),
-                                      DropdownMenuItem(value: '+971', child: Text('🇦🇪 +971')),
+                                      DropdownMenuItem(
+                                          value: '+967',
+                                          child: Text('🇾🇪 +967')),
+                                      DropdownMenuItem(
+                                          value: '+966',
+                                          child: Text('🇸🇦 +966')),
+                                      DropdownMenuItem(
+                                          value: '+971',
+                                          child: Text('🇦🇪 +971')),
                                     ],
                                     onChanged: (val) {
-                                      if (val != null) setState(() => _selectedCountryCode = val);
+                                      if (val != null)
+                                        setState(
+                                            () => _selectedCountryCode = val);
                                     },
                                   ),
                                 ),
@@ -205,7 +222,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 prefixIcon: Icons.phone_android_outlined,
                                 keyboardType: TextInputType.phone,
                                 validator: (v) {
-                                  if (v == null || v.isEmpty) return 'الرجاء إدخال رقم الهاتف';
+                                  if (v == null || v.isEmpty)
+                                    return 'الرجاء إدخال رقم الهاتف';
                                   return null;
                                 },
                               ),
@@ -213,7 +231,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        
+
                         // --- Password Input ---
                         _buildLabel('كلمة المرور'),
                         CustomTextField(
@@ -222,8 +240,10 @@ class _RegisterPageState extends State<RegisterPage> {
                           prefixIcon: Icons.lock_outline,
                           isPassword: true,
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'الرجاء إدخال كلمة المرور';
-                            if (v.length < 6) return 'يجب أن تكون 6 أحرف على الأقل';
+                            if (v == null || v.isEmpty)
+                              return 'الرجاء إدخال كلمة المرور';
+                            if (v.length < 6)
+                              return 'يجب أن تكون 6 أحرف على الأقل';
                             return null;
                           },
                         ),
@@ -237,8 +257,10 @@ class _RegisterPageState extends State<RegisterPage> {
                           prefixIcon: Icons.lock_outline,
                           isPassword: true,
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'الرجاء تأكيد كلمة المرور';
-                            if (v != _passwordController.text) return 'الرقم السري غير متطابق';
+                            if (v == null || v.isEmpty)
+                              return 'الرجاء تأكيد كلمة المرور';
+                            if (v != _passwordController.text)
+                              return 'الرقم السري غير متطابق';
                             return null;
                           },
                         ),
@@ -260,7 +282,8 @@ class _RegisterPageState extends State<RegisterPage> {
                               ? null
                               : () {
                                   if (_formKey.currentState!.validate()) {
-                                    final fullPhone = _selectedCountryCode + _phoneController.text.trim();
+                                    final fullPhone = _selectedCountryCode +
+                                        _phoneController.text.trim();
                                     context.read<AuthBloc>().add(
                                           RegisterEvent(
                                             _nameController.text.trim(),
@@ -275,11 +298,14 @@ class _RegisterPageState extends State<RegisterPage> {
                               ? const SizedBox(
                                   height: 24,
                                   width: 24,
-                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white, strokeWidth: 3),
                                 )
                               : const Text(
                                   'إنشاء حساب',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
                                 ),
                         ),
                         const SizedBox(height: 16),

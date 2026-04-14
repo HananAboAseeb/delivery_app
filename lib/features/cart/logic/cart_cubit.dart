@@ -1,12 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/cart_item_entity.dart';
+import '../domain/entities/cart_item_entity.dart';
 import 'package:my_store/core/usecases/usecase.dart';
-import '../../domain/usecases/get_cart_usecase.dart';
-import '../../domain/usecases/add_to_cart_usecase.dart';
-import '../../domain/usecases/remove_from_cart_usecase.dart';
-import '../../domain/usecases/update_cart_item_quantity_usecase.dart';
-import '../../domain/usecases/clear_cart_usecase.dart';
+import '../domain/usecases/get_cart_usecase.dart';
+import '../domain/usecases/add_to_cart_usecase.dart';
+import '../domain/usecases/remove_from_cart_usecase.dart';
+import '../domain/usecases/update_cart_item_quantity_usecase.dart';
+import '../domain/usecases/clear_cart_usecase.dart';
 
 // --- STATES ---
 abstract class CartState extends Equatable {
@@ -16,15 +16,18 @@ abstract class CartState extends Equatable {
 }
 
 class CartInitial extends CartState {}
+
 class CartLoading extends CartState {}
+
 class CartLoaded extends CartState {
   final List<CartItemEntity> items;
   double get totalAmount => items.fold(0, (sum, item) => sum + item.totalPrice);
-  
+
   const CartLoaded(this.items);
   @override
   List<Object?> get props => [items];
 }
+
 class CartError extends CartState {
   final String message;
   const CartError(this.message);
@@ -79,7 +82,8 @@ class CartCubit extends Cubit<CartState> {
 
   Future<void> updateQuantity(String itemId, int quantity) async {
     try {
-      await updateQuantityUseCase(UpdateCartItemQuantityParams(itemId: itemId, quantity: quantity));
+      await updateQuantityUseCase(
+          UpdateCartItemQuantityParams(itemId: itemId, quantity: quantity));
       await loadCart();
     } catch (e) {
       emit(CartError(e.toString()));

@@ -7,9 +7,9 @@ import 'profile_state.dart';
 class ProfileCubit extends Cubit<ProfileState> {
   final FlutterSecureStorage _storage;
 
-  static const _keyName   = 'profile_name';
-  static const _keyEmail  = 'profile_email';
-  static const _keyPhone  = 'profile_phone';
+  static const _keyName = 'profile_name';
+  static const _keyEmail = 'profile_email';
+  static const _keyPhone = 'profile_phone';
   static const _keyAvatar = 'profile_avatar';
 
   ProfileCubit(this._storage) : super(ProfileLoading()) {
@@ -23,15 +23,15 @@ class ProfileCubit extends Cubit<ProfileState> {
     emit(ProfileLoading());
 
     // ── 1. Read from local cache (fast, always works offline) ──────────────
-    final name   = await _storage.read(key: _keyName);
-    final email  = await _storage.read(key: _keyEmail);
-    final phone  = await _storage.read(key: _keyPhone);
+    final name = await _storage.read(key: _keyName);
+    final email = await _storage.read(key: _keyEmail);
+    final phone = await _storage.read(key: _keyPhone);
     final avatar = await _storage.read(key: _keyAvatar);
 
     var profile = UserProfile(
-      name:      name   ?? '',
-      email:     email  ?? '',
-      phone:     phone  ?? '',
+      name: name ?? '',
+      email: email ?? '',
+      phone: phone ?? '',
       avatarUrl: avatar ?? '',
     );
 
@@ -40,22 +40,22 @@ class ProfileCubit extends Cubit<ProfileState> {
     // ── 2. Background refresh from API (updates the display if needed) ──────
     try {
       final apiClient = di.sl<ApiClient>();
-      final response  = await apiClient.dio.get('/api/account/my-profile');
-      final data      = response.data as Map<String, dynamic>?;
+      final response = await apiClient.dio.get('/api/account/my-profile');
+      final data = response.data as Map<String, dynamic>?;
 
       if (data != null) {
-        final freshName  = data['userName']    ?? data['name'] ?? profile.name;
-        final freshEmail = data['email']        ?? profile.email;
-        final freshPhone = data['phoneNumber']  ?? profile.phone;
+        final freshName = data['userName'] ?? data['name'] ?? profile.name;
+        final freshEmail = data['email'] ?? profile.email;
+        final freshPhone = data['phoneNumber'] ?? profile.phone;
 
         profile = profile.copyWith(
-          name:  freshName,
+          name: freshName,
           email: freshEmail,
           phone: freshPhone,
         );
 
         // Keep local cache in sync
-        await _storage.write(key: _keyName,  value: freshName);
+        await _storage.write(key: _keyName, value: freshName);
         await _storage.write(key: _keyEmail, value: freshEmail);
         await _storage.write(key: _keyPhone, value: freshPhone);
 
@@ -75,12 +75,13 @@ class ProfileCubit extends Cubit<ProfileState> {
   }) async {
     final current = (state is ProfileLoaded)
         ? (state as ProfileLoaded).profile
-        : UserProfile(name: name, email: email, phone: phone, avatarUrl: avatarUrl ?? '');
+        : UserProfile(
+            name: name, email: email, phone: phone, avatarUrl: avatarUrl ?? '');
 
     final updated = current.copyWith(
-      name:      name,
-      email:     email,
-      phone:     phone,
+      name: name,
+      email: email,
+      phone: phone,
       avatarUrl: avatarUrl,
     );
 
@@ -90,15 +91,15 @@ class ProfileCubit extends Cubit<ProfileState> {
       // Push to API
       final apiClient = di.sl<ApiClient>();
       await apiClient.dio.put('/api/account/my-profile', data: {
-        'userName':    updated.name,
-        'email':       updated.email,
+        'userName': updated.name,
+        'email': updated.email,
         'phoneNumber': updated.phone,
       });
 
       // Persist locally
-      await _storage.write(key: _keyName,   value: updated.name);
-      await _storage.write(key: _keyEmail,  value: updated.email);
-      await _storage.write(key: _keyPhone,  value: updated.phone);
+      await _storage.write(key: _keyName, value: updated.name);
+      await _storage.write(key: _keyEmail, value: updated.email);
+      await _storage.write(key: _keyPhone, value: updated.phone);
       await _storage.write(key: _keyAvatar, value: updated.avatarUrl);
 
       emit(ProfileSaved(updated));
@@ -115,6 +116,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     await _storage.delete(key: _keyEmail);
     await _storage.delete(key: _keyPhone);
     await _storage.delete(key: _keyAvatar);
-    emit(const ProfileLoaded(UserProfile(name: '', email: '', phone: '', avatarUrl: '')));
+    emit(const ProfileLoaded(
+        UserProfile(name: '', email: '', phone: '', avatarUrl: '')));
   }
 }

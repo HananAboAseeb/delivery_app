@@ -10,7 +10,8 @@ class AuthInterceptor extends Interceptor {
   static const String tokenKey = 'access_token';
 
   @override
-  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  Future<void> onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
     // Read the token from secure storage
     final token = await _storage.read(key: tokenKey);
 

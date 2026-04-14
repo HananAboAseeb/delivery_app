@@ -8,7 +8,8 @@ class StoreCategoryModel {
   final String itemUnderSubGroupId;
   final String itemUnderSubGroupName;
 
-  StoreCategoryModel({required this.itemUnderSubGroupId, required this.itemUnderSubGroupName});
+  StoreCategoryModel(
+      {required this.itemUnderSubGroupId, required this.itemUnderSubGroupName});
 
   factory StoreCategoryModel.fromJson(Map<String, dynamic> json) {
     return StoreCategoryModel(
@@ -40,7 +41,9 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
       final response = await apiClient.get('/api/ECommerce/stores-cache');
       final List items = response.data is List ? response.data : [];
       debugPrint('✅ [StoreDS] stores-cache → ${items.length} stores');
-      return items.map((json) => StoreModel.fromJson(json as Map<String, dynamic>)).toList();
+      return items
+          .map((json) => StoreModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       debugPrint('⚠️ [StoreDS] stores-cache failed: $e');
     }
@@ -69,7 +72,8 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
     try {
       final response = await apiClient.get('/api/ECommerce/stores/by-id/$id');
       final data = response.data;
-      final storeData = data is Map && data.containsKey('store') ? data['store'] : data;
+      final storeData =
+          data is Map && data.containsKey('store') ? data['store'] : data;
       return StoreModel.fromJson(storeData as Map<String, dynamic>);
     } catch (e) {
       throw ServerException(message: 'Failed to fetch store details: $e');
@@ -103,7 +107,9 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
       for (final item in items) {
         debugPrint('   → Group: ${item['name']} (id: ${item['id']})');
       }
-      return items.map((json) => StoreGroupModel.fromJson(json as Map<String, dynamic>)).toList();
+      return items
+          .map((json) => StoreGroupModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       debugPrint('❌ [StoreDS] items-groups-cache failed: $e');
       throw ServerException(message: 'Failed to fetch store groups: $e');
@@ -113,19 +119,25 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
   @override
   Future<List<StoreModel>> getStoresByGroup(String groupId) async {
     try {
-      debugPrint('🔄 [StoreDS] Trying /api/ECommerce/stores-cache/store-restaurant-by-group-id/$groupId ...');
-      final response = await apiClient.get('/api/ECommerce/stores-cache/store-restaurant-by-group-id/$groupId');
+      debugPrint(
+          '🔄 [StoreDS] Trying /api/ECommerce/stores-cache/store-restaurant-by-group-id/$groupId ...');
+      final response = await apiClient.get(
+          '/api/ECommerce/stores-cache/store-restaurant-by-group-id/$groupId');
       final List items = response.data is List ? response.data : [];
-      debugPrint('✅ [StoreDS] stores by group (cached) → ${items.length} stores');
+      debugPrint(
+          '✅ [StoreDS] stores by group (cached) → ${items.length} stores');
       if (items.isNotEmpty) {
-        return items.map((json) => StoreModel.fromJson(json as Map<String, dynamic>)).toList();
+        return items
+            .map((json) => StoreModel.fromJson(json as Map<String, dynamic>))
+            .toList();
       }
     } catch (e) {
       debugPrint('⚠️ [StoreDS] getStoresByGroup cached failed: $e');
     }
 
     try {
-      debugPrint('🔄 [StoreDS] Falling back to stores/get-all for group: $groupId ...');
+      debugPrint(
+          '🔄 [StoreDS] Falling back to stores/get-all for group: $groupId ...');
       final response = await apiClient.post(
         '/api/ECommerce/stores/get-all',
         data: {
@@ -151,14 +163,20 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
   @override
   Future<List<StoreCategoryModel>> getStoreCategories(String storeId) async {
     try {
-      debugPrint('🔄 [StoreDS] Fetching categories from /stores-cache/market/$storeId ...');
-      final response = await apiClient.get('/api/ECommerce/stores-cache/market/$storeId');
+      debugPrint(
+          '🔄 [StoreDS] Fetching categories from /stores-cache/market/$storeId ...');
+      final response =
+          await apiClient.get('/api/ECommerce/stores-cache/market/$storeId');
       final List items = response.data is List ? response.data : [];
       debugPrint('✅ [StoreDS] Store categories → ${items.length} categories');
       for (final item in items) {
-        debugPrint('   → Category: ${item['itemUnderSubGroupName']} (id: ${item['itemUnderSubGroupId']})');
+        debugPrint(
+            '   → Category: ${item['itemUnderSubGroupName']} (id: ${item['itemUnderSubGroupId']})');
       }
-      return items.map((json) => StoreCategoryModel.fromJson(json as Map<String, dynamic>)).toList();
+      return items
+          .map((json) =>
+              StoreCategoryModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       debugPrint('❌ [StoreDS] getStoreCategories failed: $e');
       throw ServerException(message: 'Failed to fetch store categories: $e');

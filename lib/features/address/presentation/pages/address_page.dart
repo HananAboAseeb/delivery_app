@@ -29,16 +29,18 @@ class _AddressPageState extends State<AddressPage> {
 
   void _showAddAddressSheet(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) {
         bool isDefault = false;
         return StatefulBuilder(builder: (context, setModalState) {
           return Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -49,13 +51,19 @@ class _AddressPageState extends State<AddressPage> {
                     child: Container(
                       width: 40,
                       height: 5,
-                      decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(10)),
+                      decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text('إضافة عنوان جديد', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                  const Text('إضافة عنوان جديد',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center),
                   const SizedBox(height: 24),
-                  _buildTextField('اسم الموقع (مثال: المنزل)', Icons.label_outline),
+                  _buildTextField(
+                      'اسم الموقع (مثال: المنزل)', Icons.label_outline),
                   const SizedBox(height: 16),
                   _buildTextField('الشارع', Icons.add_road),
                   const SizedBox(height: 16),
@@ -64,7 +72,8 @@ class _AddressPageState extends State<AddressPage> {
                   _buildTextField('رقم الهاتف للتواصل', Icons.phone_outlined),
                   const SizedBox(height: 16),
                   CheckboxListTile(
-                    title: const Text('تعيين كعنوان افتراضي', style: TextStyle(fontWeight: FontWeight.bold)),
+                    title: const Text('تعيين كعنوان افتراضي',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     value: isDefault,
                     activeColor: theme.primaryColor,
                     contentPadding: EdgeInsets.zero,
@@ -79,14 +88,21 @@ class _AddressPageState extends State<AddressPage> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إضافة العنوان بنجاح')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('تم إضافة العنوان بنجاح')));
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.primaryColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
                         elevation: 0,
                       ),
-                      child: const Text('حفظ العنوان', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                      child: const Text('حفظ العنوان',
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
                     ),
                   ),
                 ],
@@ -105,7 +121,9 @@ class _AddressPageState extends State<AddressPage> {
         prefixIcon: Icon(icon, color: Colors.grey.shade500),
         filled: true,
         fillColor: Colors.grey.shade50,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none),
       ),
     );
   }
@@ -117,7 +135,8 @@ class _AddressPageState extends State<AddressPage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text('عناويني', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('عناويني',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
@@ -140,9 +159,14 @@ class _AddressPageState extends State<AddressPage> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: addr['isDefault'] ? Border.all(color: theme.primaryColor, width: 2) : null,
+              border: addr['isDefault']
+                  ? Border.all(color: theme.primaryColor, width: 2)
+                  : null,
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4)),
               ],
             ),
             child: Row(
@@ -151,12 +175,16 @@ class _AddressPageState extends State<AddressPage> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: addr['isDefault'] ? theme.primaryColor.withOpacity(0.1) : Colors.grey.shade100,
+                    color: addr['isDefault']
+                        ? theme.primaryColor.withOpacity(0.1)
+                        : Colors.grey.shade100,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     addr['name'] == 'المنزل' ? Icons.home : Icons.work,
-                    color: addr['isDefault'] ? theme.primaryColor : Colors.grey.shade600,
+                    color: addr['isDefault']
+                        ? theme.primaryColor
+                        : Colors.grey.shade600,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -166,24 +194,34 @@ class _AddressPageState extends State<AddressPage> {
                     children: [
                       Row(
                         children: [
-                          Text(addr['name'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text(addr['name'],
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold)),
                           if (addr['isDefault']) ...[
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
                                 color: theme.primaryColor,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Text('الافتراضي', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                              child: const Text('الافتراضي',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold)),
                             ),
                           ]
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text('${addr['street']}، ${addr['building']}', style: TextStyle(color: Colors.grey.shade600)),
+                      Text('${addr['street']}، ${addr['building']}',
+                          style: TextStyle(color: Colors.grey.shade600)),
                       const SizedBox(height: 4),
-                      Text('رقم الهاتف: ${addr['phone']}', style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                      Text('رقم الهاتف: ${addr['phone']}',
+                          style: TextStyle(
+                              color: Colors.grey.shade500, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -200,7 +238,8 @@ class _AddressPageState extends State<AddressPage> {
         onPressed: () => _showAddAddressSheet(context),
         backgroundColor: theme.primaryColor,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('إضافة عنوان', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        label: const Text('إضافة عنوان',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
       ),
     );
   }

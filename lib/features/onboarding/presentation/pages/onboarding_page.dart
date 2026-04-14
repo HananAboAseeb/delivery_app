@@ -16,18 +16,24 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final List<Map<String, String>> _onboardingData = [
     {
       "title": "All Your Needs, One App",
-      "description": "From gourmet meals to daily groceries, delivered instantly.",
-      "image": "https://cdn-icons-png.flaticon.com/512/1046/1046784.png" // صورة توصيل عامة
+      "description":
+          "From gourmet meals to daily groceries, delivered instantly.",
+      "image":
+          "https://cdn-icons-png.flaticon.com/512/1046/1046784.png" // صورة توصيل عامة
     },
     {
       "title": "Fast & Trackable Delivery",
-      "description": "Real-time updates from store to door. Your curated essentials are always within sight.",
-      "image": "https://cdn-icons-png.flaticon.com/512/190/190411.png" // صورة رجل التوصيل
+      "description":
+          "Real-time updates from store to door. Your curated essentials are always within sight.",
+      "image":
+          "https://cdn-icons-png.flaticon.com/512/190/190411.png" // صورة رجل التوصيل
     },
     {
       "title": "Smart Wallet & Easy Payments",
-      "description": "Securely store funds in your app wallet for faster checkouts. Pay with cards or cash on delivery.",
-      "image": "https://cdn-icons-png.flaticon.com/512/6335/6335800.png" // صورة محفظة
+      "description":
+          "Securely store funds in your app wallet for faster checkouts. Pay with cards or cash on delivery.",
+      "image":
+          "https://cdn-icons-png.flaticon.com/512/6335/6335800.png" // صورة محفظة
     },
   ];
 
@@ -49,7 +55,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
@@ -73,10 +79,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 },
               ),
             ),
-            
+
             // البار السفلي للتحكم
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -92,7 +99,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             ),
                           ),
                         )
-                      : const SizedBox(width: 60), // فضاء وهمي للحفاظ على المحاذاة
+                      : const SizedBox(
+                          width: 60), // فضاء وهمي للحفاظ على المحاذاة
 
                   // مؤشرات الصفحات (Dots)
                   Row(
@@ -112,7 +120,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          child: const Text("Get Started", style: TextStyle(color: Colors.white)),
+                          child: const Text("Get Started",
+                              style: TextStyle(color: Colors.white)),
                         )
                       : TextButton(
                           onPressed: _nextPage,
@@ -141,7 +150,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
       height: 8,
       width: _currentPage == index ? 24 : 8,
       decoration: BoxDecoration(
-        color: _currentPage == index ? Theme.of(context).primaryColor : Colors.grey.shade300,
+        color: _currentPage == index
+            ? Theme.of(context).primaryColor
+            : Colors.grey.shade300,
         borderRadius: BorderRadius.circular(4),
       ),
     );

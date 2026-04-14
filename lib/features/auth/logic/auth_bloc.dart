@@ -1,11 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/user_entity.dart';
+import '../domain/entities/user_entity.dart';
 import 'package:my_store/core/usecases/usecase.dart';
-import '../../domain/usecases/login_usecase.dart';
-import '../../domain/usecases/register_usecase.dart';
-import '../../domain/usecases/logout_usecase.dart';
-import '../../domain/usecases/get_current_user_usecase.dart';
+import '../domain/usecases/login_usecase.dart';
+import '../domain/usecases/register_usecase.dart';
+import '../domain/usecases/logout_usecase.dart';
+import '../domain/usecases/get_current_user_usecase.dart';
 
 // --- EVENTS ---
 abstract class AuthEvent extends Equatable {
@@ -44,14 +44,18 @@ abstract class AuthState extends Equatable {
 }
 
 class AuthInitial extends AuthState {}
+
 class AuthLoading extends AuthState {}
+
 class AuthAuthenticated extends AuthState {
   final UserEntity user;
   const AuthAuthenticated(this.user);
   @override
   List<Object?> get props => [user];
 }
+
 class AuthUnauthenticated extends AuthState {}
+
 class AuthError extends AuthState {
   final String message;
   const AuthError(this.message);
@@ -78,7 +82,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutEvent>(_onLogout);
   }
 
-  Future<void> _onCheckAuthStatus(CheckAuthStatusEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onCheckAuthStatus(
+      CheckAuthStatusEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
       final user = await getCurrentUserUseCase(NoParams());
@@ -95,7 +100,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final user = await loginUseCase(LoginParams(username: event.username, password: event.password));
+      final user = await loginUseCase(
+          LoginParams(username: event.username, password: event.password));
       emit(AuthAuthenticated(user));
     } catch (e) {
       emit(AuthError(e.toString()));
@@ -106,7 +112,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final user = await registerUseCase(RegisterParams(name: event.name, email: event.email, phone: event.phone, password: event.password));
+      final user = await registerUseCase(RegisterParams(
+          name: event.name,
+          email: event.email,
+          phone: event.phone,
+          password: event.password));
       emit(AuthAuthenticated(user));
     } catch (e) {
       emit(AuthError(e.toString()));

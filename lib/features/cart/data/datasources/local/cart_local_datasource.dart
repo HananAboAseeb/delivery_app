@@ -18,31 +18,35 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
   @override
   Future<List<CartItemModel>> getCartItems() async {
     final items = await database.getCartItems();
-    return items.map((e) => CartItemModel(
-      id: e.id.toString(), // The table uses IntColumn but the model uses String
-      productId: e.productId,
-      productName: e.productName,
-      quantity: e.quantity.toInt(),
-      unitPrice: e.unitPrice,
-      totalPrice: e.totalPrice,
-      size: e.size,
-      color: e.color,
-      storeId: e.storeId,
-      storeName: e.storeName,
-    )).toList();
+    return items
+        .map((e) => CartItemModel(
+              id: e.id
+                  .toString(), // The table uses IntColumn but the model uses String
+              productId: e.productId,
+              productName: e.productName,
+              quantity: e.quantity.toInt(),
+              unitPrice: e.unitPrice,
+              totalPrice: e.totalPrice,
+              size: e.size,
+              color: e.color,
+              storeId: e.storeId,
+              storeName: e.storeName,
+            ))
+        .toList();
   }
 
   @override
   Future<void> addToCart(CartItemModel item) async {
     // Check if the product already exists in the cart by productId
     final existingItems = await database.getCartItems();
-    final existing = existingItems.where((e) => e.productId == item.productId).firstOrNull;
+    final existing =
+        existingItems.where((e) => e.productId == item.productId).firstOrNull;
 
     if (existing != null) {
       // Update quantity and total price
       final newQuantity = existing.quantity + item.quantity;
       final newTotal = newQuantity * existing.unitPrice;
-      
+
       await database.addOrUpdateCartItem(
         CartItemsCompanion(
           id: Value(existing.id),

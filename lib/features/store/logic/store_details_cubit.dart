@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../domain/entities/store_entity.dart';
-import '../../../product/domain/entities/product_entity.dart';
-import '../../../product/domain/usecases/get_products_by_store_usecase.dart';
-import '../../data/datasources/store_remote_datasource.dart';
+import '../domain/entities/store_entity.dart';
+import 'package:my_store/features/product/domain/entities/product_entity.dart';
+import 'package:my_store/features/product/domain/usecases/get_products_by_store_usecase.dart';
+import '../data/datasources/store_remote_datasource.dart';
 
 part 'store_details_state.dart';
 
@@ -21,7 +21,8 @@ class StoreDetailsCubit extends Cubit<StoreDetailsState> {
   /// Load store details from a pre-fetched StoreEntity.
   /// Then fetch the REAL categories from API and products.
   Future<void> loadStoreFromEntity(StoreEntity store) async {
-    debugPrint('📦 [StoreDetailsCubit] Loading store: ${store.name} (id: ${store.id}, tenantId: ${store.tenantId})');
+    debugPrint(
+        '📦 [StoreDetailsCubit] Loading store: ${store.name} (id: ${store.id}, tenantId: ${store.tenantId})');
 
     emit(state.copyWith(
       store: store,
@@ -32,7 +33,8 @@ class StoreDetailsCubit extends Cubit<StoreDetailsState> {
 
     // Fetch REAL categories from API: GET /stores-cache/market/{StoreId}
     try {
-      final categories = await storeRemoteDataSource.getStoreCategories(store.id);
+      final categories =
+          await storeRemoteDataSource.getStoreCategories(store.id);
       final itemGroups = categories
           .map((c) => StoreItemGroupEntity(
                 groupId: c.itemUnderSubGroupId,
@@ -40,7 +42,8 @@ class StoreDetailsCubit extends Cubit<StoreDetailsState> {
               ))
           .toList();
 
-      debugPrint('✅ [StoreDetailsCubit] Got ${itemGroups.length} categories from API');
+      debugPrint(
+          '✅ [StoreDetailsCubit] Got ${itemGroups.length} categories from API');
 
       emit(state.copyWith(
         itemGroups: itemGroups,
@@ -64,7 +67,8 @@ class StoreDetailsCubit extends Cubit<StoreDetailsState> {
     }
   }
 
-  Future<void> fetchProducts(String storeId, {String? itemGroupId, String? tenantId}) async {
+  Future<void> fetchProducts(String storeId,
+      {String? itemGroupId, String? tenantId}) async {
     emit(state.copyWith(
       isLoadingProducts: true,
       productsError: null,
@@ -75,13 +79,14 @@ class StoreDetailsCubit extends Cubit<StoreDetailsState> {
     try {
       // Use tenantId from the store if not passed directly
       final effectiveTenantId = tenantId ?? state.store?.tenantId;
-      
+
       final params = GetProductsByStoreParams(
         storeId: storeId,
         itemGroupId: itemGroupId,
         tenantId: effectiveTenantId,
       );
-      debugPrint('🔄 [StoreDetailsCubit] Fetching products: store=$storeId, group=$itemGroupId, tenant=$effectiveTenantId');
+      debugPrint(
+          '🔄 [StoreDetailsCubit] Fetching products: store=$storeId, group=$itemGroupId, tenant=$effectiveTenantId');
       final products = await getProductsByStoreUseCase(params);
       debugPrint('✅ [StoreDetailsCubit] Got ${products.length} products');
 

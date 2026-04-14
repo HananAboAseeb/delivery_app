@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/splash/presentation/pages/splash_page.dart';
-import '../../features/onboarding/presentation/pages/onboarding_page.dart';
-import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/auth/presentation/pages/register_page.dart';
-import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/store/presentation/pages/store_details_page.dart';
-import '../../features/store/domain/entities/store_entity.dart';
-import '../../features/cart/presentation/pages/cart_page.dart';
-import '../../features/order/presentation/pages/orders_page.dart';
-import '../../features/profile/presentation/pages/profile_page.dart';
-import '../../features/search/presentation/pages/search_page.dart';
-import '../../features/address/presentation/pages/address_page.dart';
+import 'package:my_store/features/splash/presentation/pages/splash_page.dart';
+import 'package:my_store/features/onboarding/presentation/pages/onboarding_page.dart';
+import 'package:my_store/features/auth/presentation/pages/login_page.dart';
+import 'package:my_store/features/auth/presentation/pages/register_page.dart';
+import 'package:my_store/features/home/presentation/pages/home_page.dart';
+import 'package:my_store/features/store/presentation/pages/store_details_page.dart';
+import 'package:my_store/features/store/domain/entities/store_entity.dart';
+import 'package:my_store/features/cart/presentation/pages/cart_page.dart';
+import 'package:my_store/features/order/presentation/pages/orders_page.dart';
+import 'package:my_store/features/profile/presentation/pages/profile_page.dart';
+import 'package:my_store/features/search/presentation/pages/search_page.dart';
+import 'package:my_store/features/address/presentation/pages/address_page.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',

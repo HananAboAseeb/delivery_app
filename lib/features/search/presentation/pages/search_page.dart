@@ -22,7 +22,13 @@ class _SearchPageState extends State<SearchPage> {
   List<StoreEntity> _allStores = [];
   bool _dataLoaded = false;
 
-  final List<String> _recentSearches = ['برجر', 'شاورما', 'قهوة', 'صيدلية', 'بيتزا'];
+  final List<String> _recentSearches = [
+    'برجر',
+    'شاورما',
+    'قهوة',
+    'صيدلية',
+    'بيتزا'
+  ];
   final List<String> _filters = ['الكل', 'المنتجات', 'المتاجر'];
 
   @override
@@ -33,7 +39,9 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<void> _loadData() async {
     if (_dataLoaded) return;
-    setState(() { _isLoading = true; });
+    setState(() {
+      _isLoading = true;
+    });
     try {
       // Load products
       try {
@@ -53,7 +61,10 @@ class _SearchPageState extends State<SearchPage> {
     } catch (e) {
       debugPrint('❌ [SearchPage] Unexpected error: $e');
     }
-    if (mounted) setState(() { _isLoading = false; });
+    if (mounted)
+      setState(() {
+        _isLoading = false;
+      });
   }
 
   List<ProductEntity> get _filteredProducts {
@@ -74,7 +85,8 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text('البحث', style: TextStyle(fontWeight: FontWeight.bold)),
+        title:
+            const Text('البحث', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.white,
@@ -104,7 +116,9 @@ class _SearchPageState extends State<SearchPage> {
                     : null,
                 filled: true,
                 fillColor: Colors.grey.shade100,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none),
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
               ),
             ),
@@ -137,12 +151,16 @@ class _SearchPageState extends State<SearchPage> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.green.shade600, size: 18),
+                  Icon(Icons.check_circle,
+                      color: Colors.green.shade600, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       '${_allProducts.length} منتج و ${_allStores.length} متجر متاح للبحث',
-                      style: TextStyle(color: Colors.green.shade700, fontSize: 13, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                          color: Colors.green.shade700,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -159,12 +177,16 @@ class _SearchPageState extends State<SearchPage> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, color: Colors.orange.shade600, size: 18),
+                  Icon(Icons.info_outline,
+                      color: Colors.orange.shade600, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'تأكد من تسجيل الدخول لعرض المنتجات',
-                      style: TextStyle(color: Colors.orange.shade700, fontSize: 13, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                          color: Colors.orange.shade700,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600),
                     ),
                   ),
                   TextButton(
@@ -181,10 +203,14 @@ class _SearchPageState extends State<SearchPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('عمليات البحث الأخيرة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text('عمليات البحث الأخيرة',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               TextButton(
                 onPressed: () {},
-                child: Text('مسح الكل', style: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.bold)),
+                child: Text('مسح الكل',
+                    style: TextStyle(
+                        color: theme.primaryColor,
+                        fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -196,7 +222,9 @@ class _SearchPageState extends State<SearchPage> {
               return ActionChip(
                 label: Text(search),
                 backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: Colors.grey.shade300)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(color: Colors.grey.shade300)),
                 onPressed: () {
                   _searchController.text = search;
                   setState(() => _searchQuery = search);
@@ -208,7 +236,8 @@ class _SearchPageState extends State<SearchPage> {
 
           // Quick browse products
           if (_allProducts.isNotEmpty) ...[
-            const Text('منتجات متاحة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('منتجات متاحة',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             SizedBox(
               height: 120,
@@ -234,7 +263,8 @@ class _SearchPageState extends State<SearchPage> {
                               color: primaryColor.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Icon(Icons.fastfood, color: primaryColor, size: 32),
+                            child: Icon(Icons.fastfood,
+                                color: primaryColor, size: 32),
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -242,7 +272,8 @@ class _SearchPageState extends State<SearchPage> {
                             maxLines: 2,
                             textAlign: TextAlign.center,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                                fontSize: 11, fontWeight: FontWeight.w600),
                           ),
                         ],
                       ),
@@ -260,9 +291,12 @@ class _SearchPageState extends State<SearchPage> {
   Widget _buildSearchResults(ThemeData theme, Color primaryColor) {
     final products = _filteredProducts;
     final stores = _filteredStores;
-    final showProducts = _selectedFilter == 'الكل' || _selectedFilter == 'المنتجات';
-    final showStores = _selectedFilter == 'الكل' || _selectedFilter == 'المتاجر';
-    final totalResults = (showProducts ? products.length : 0) + (showStores ? stores.length : 0);
+    final showProducts =
+        _selectedFilter == 'الكل' || _selectedFilter == 'المنتجات';
+    final showStores =
+        _selectedFilter == 'الكل' || _selectedFilter == 'المتاجر';
+    final totalResults =
+        (showProducts ? products.length : 0) + (showStores ? stores.length : 0);
 
     return Column(
       children: [
@@ -280,7 +314,10 @@ class _SearchPageState extends State<SearchPage> {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: ChoiceChip(
-                  label: Text(filter, style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontWeight: FontWeight.bold)),
+                  label: Text(filter,
+                      style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black87,
+                          fontWeight: FontWeight.bold)),
                   selected: isSelected,
                   selectedColor: primaryColor,
                   backgroundColor: Colors.grey.shade100,
@@ -300,7 +337,10 @@ class _SearchPageState extends State<SearchPage> {
             children: [
               Text(
                 '$totalResults نتيجة',
-                style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                style: TextStyle(
+                    color: primaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13),
               ),
             ],
           ),
@@ -312,9 +352,14 @@ class _SearchPageState extends State<SearchPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.search_off, size: 80, color: Colors.grey.shade300),
+                      Icon(Icons.search_off,
+                          size: 80, color: Colors.grey.shade300),
                       const SizedBox(height: 16),
-                      Text('لا توجد نتائج مطابقة', style: TextStyle(fontSize: 18, color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
+                      Text('لا توجد نتائج مطابقة',
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.bold)),
                     ],
                   ),
                 )
@@ -323,17 +368,23 @@ class _SearchPageState extends State<SearchPage> {
                   children: [
                     // Stores section
                     if (showStores && stores.isNotEmpty) ...[
-                      Text('المتاجر (${stores.length})', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text('المتاجر (${stores.length})',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 8),
-                      ...stores.map((store) => _buildStoreResultCard(store, primaryColor)),
+                      ...stores.map((store) =>
+                          _buildStoreResultCard(store, primaryColor)),
                       const SizedBox(height: 16),
                     ],
 
                     // Products section
                     if (showProducts && products.isNotEmpty) ...[
-                      Text('المنتجات (${products.length})', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text('المنتجات (${products.length})',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 8),
-                      ...products.map((product) => _buildProductResultCard(product, primaryColor)),
+                      ...products.map((product) =>
+                          _buildProductResultCard(product, primaryColor)),
                     ],
                   ],
                 ),
@@ -349,12 +400,18 @@ class _SearchPageState extends State<SearchPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2))
+        ],
       ),
       child: Row(
         children: [
           Container(
-            width: 50, height: 50,
+            width: 50,
+            height: 50,
             decoration: BoxDecoration(
               color: primaryColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
@@ -366,9 +423,13 @@ class _SearchPageState extends State<SearchPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(store.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                Text(store.name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 14)),
                 const SizedBox(height: 4),
-                Text('متجر', style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                Text('متجر',
+                    style:
+                        TextStyle(color: Colors.grey.shade500, fontSize: 12)),
               ],
             ),
           ),
@@ -385,12 +446,18 @@ class _SearchPageState extends State<SearchPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2))
+        ],
       ),
       child: Row(
         children: [
           Container(
-            width: 50, height: 50,
+            width: 50,
+            height: 50,
             decoration: BoxDecoration(
               color: Colors.orange.shade50,
               borderRadius: BorderRadius.circular(12),
@@ -398,8 +465,11 @@ class _SearchPageState extends State<SearchPage> {
             child: product.imageUrl != null && product.imageUrl!.isNotEmpty
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.network(product.imageUrl!, fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Icon(Icons.fastfood, color: primaryColor),
+                    child: Image.network(
+                      product.imageUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) =>
+                          Icon(Icons.fastfood, color: primaryColor),
                     ),
                   )
                 : Icon(Icons.fastfood, color: primaryColor),
@@ -409,11 +479,16 @@ class _SearchPageState extends State<SearchPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                Text(product.name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 14)),
                 const SizedBox(height: 4),
                 Text(
                   '${product.unitPrice.toStringAsFixed(0)} ${product.currencyName}',
-                  style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                  style: TextStyle(
+                      color: primaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13),
                 ),
               ],
             ),

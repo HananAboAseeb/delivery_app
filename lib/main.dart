@@ -9,28 +9,29 @@ import 'core/theme/theme_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_router.dart';
 
-import 'features/auth/presentation/bloc/auth_bloc.dart';
-import 'features/product/presentation/bloc/product_bloc.dart';
-import 'features/cart/presentation/bloc/cart_cubit.dart';
-import 'features/order/presentation/bloc/order_bloc.dart';
-import 'features/favorites/presentation/cubit/favorites_cubit.dart';
-import 'features/profile/presentation/cubit/profile_cubit.dart';
+import 'features/auth/logic/auth_bloc.dart';
+import 'features/product/logic/product_bloc.dart';
+import 'features/cart/logic/cart_cubit.dart';
+import 'features/order/logic/order_bloc.dart';
+import 'features/favorites/logic/favorites_cubit.dart';
+import 'features/profile/logic/profile_cubit.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
-      ..badCertificateCallback = ((X509Certificate cert, String host, int port) => true);
+      ..badCertificateCallback =
+          ((X509Certificate cert, String host, int port) => true);
   }
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Fix for Image.network failing to load SSL images
   HttpOverrides.global = MyHttpOverrides();
-  
+
   // 1. Initialize Dependency Injection
   await di.setupServiceLocator();
 
@@ -49,8 +50,10 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => di.sl<ProductBloc>()),
         BlocProvider(create: (_) => di.sl<CartCubit>()),
         BlocProvider(create: (_) => di.sl<OrderBloc>()),
-        BlocProvider(create: (_) => FavoritesCubit(di.sl<FlutterSecureStorage>())),
-        BlocProvider(create: (_) => ProfileCubit(di.sl<FlutterSecureStorage>())),
+        BlocProvider(
+            create: (_) => FavoritesCubit(di.sl<FlutterSecureStorage>())),
+        BlocProvider(
+            create: (_) => ProfileCubit(di.sl<FlutterSecureStorage>())),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {
@@ -61,10 +64,10 @@ class MyApp extends StatelessWidget {
             routerConfig: appRouter,
             debugShowCheckedModeBanner: false,
             builder: (context, child) {
-                return Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: child!,
-                );
+              return Directionality(
+                textDirection: TextDirection.rtl,
+                child: child!,
+              );
             },
           );
         },

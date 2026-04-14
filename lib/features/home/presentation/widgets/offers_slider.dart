@@ -18,19 +18,22 @@ class _OffersSliderState extends State<OffersSlider> {
       'title': 'الرابط قد تكون أنت!',
       'action': 'اطلب بـ 2,000 ريال',
       'icon': 'local_offer',
-      'image': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=600&auto=format&fit=crop', // Burger/Pizza backdrop
+      'image':
+          'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=600&auto=format&fit=crop', // Burger/Pizza backdrop
     },
     {
       'title': 'خصم 35% للجميع',
       'action': 'تصفح العروض',
       'icon': 'directions_bike',
-      'image': 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?q=80&w=600&auto=format&fit=crop', // Chicken/Grill
+      'image':
+          'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?q=80&w=600&auto=format&fit=crop', // Chicken/Grill
     },
     {
       'title': 'توصيل مجاني لأول طلب',
       'action': 'استخدم الكود',
       'icon': 'restaurant',
-      'image': 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=600&auto=format&fit=crop', // Coffee
+      'image':
+          'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=600&auto=format&fit=crop', // Coffee
     },
   ];
 
@@ -63,10 +66,14 @@ class _OffersSliderState extends State<OffersSlider> {
 
   IconData _getIconData(String name) {
     switch (name) {
-      case 'local_offer': return Icons.local_offer;
-      case 'directions_bike': return Icons.directions_bike;
-      case 'restaurant': return Icons.restaurant;
-      default: return Icons.star;
+      case 'local_offer':
+        return Icons.local_offer;
+      case 'directions_bike':
+        return Icons.directions_bike;
+      case 'restaurant':
+        return Icons.restaurant;
+      default:
+        return Icons.star;
     }
   }
 
@@ -134,12 +141,16 @@ class _OffersSliderState extends State<OffersSlider> {
                             InkWell(
                               onTap: () {},
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 8),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
-                                    BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))
+                                    BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2))
                                   ],
                                 ),
                                 child: Text(
@@ -181,7 +192,9 @@ class _OffersSliderState extends State<OffersSlider> {
               height: 8,
               width: _currentPage == index ? 24 : 8,
               decoration: BoxDecoration(
-                color: _currentPage == index ? Theme.of(context).primaryColor : Colors.grey.shade300,
+                color: _currentPage == index
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),

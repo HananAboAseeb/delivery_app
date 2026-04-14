@@ -70,7 +70,8 @@ class StoreModel extends StoreEntity {
     var itemsGroupsJson = json['storesItemGroups'] as List?;
     List<StoreItemGroupModel> itemsGroups = [];
     if (itemsGroupsJson != null) {
-      itemsGroups = itemsGroupsJson.map((e) => StoreItemGroupModel.fromJson(e)).toList();
+      itemsGroups =
+          itemsGroupsJson.map((e) => StoreItemGroupModel.fromJson(e)).toList();
     }
 
     return StoreModel(
@@ -80,9 +81,16 @@ class StoreModel extends StoreEntity {
       foreignName: json['foreignName'],
       isActive: json['isActive'] ?? true,
       // Try multiple possible image field names
-      imageUrl: json['imageUrl'] ?? json['imagUrl'] ?? json['image'] ?? json['logoUrl'],
-      latitude: json['latitude'] != null ? (json['latitude'] as num).toDouble() : null,
-      longitude: json['longitude'] != null ? (json['longitude'] as num).toDouble() : null,
+      imageUrl: json['imageUrl'] ??
+          json['imagUrl'] ??
+          json['image'] ??
+          json['logoUrl'],
+      latitude: json['latitude'] != null
+          ? (json['latitude'] as num).toDouble()
+          : null,
+      longitude: json['longitude'] != null
+          ? (json['longitude'] as num).toDouble()
+          : null,
       tenantId: json['tenantId']?.toString(),
       groupId: json['groupId']?.toString(),
       storesItemGroups: itemsGroups,
@@ -101,7 +109,9 @@ class StoreModel extends StoreEntity {
       'longitude': longitude,
       'tenantId': tenantId,
       'groupId': groupId,
-      'storesItemGroups': storesItemGroups.map((e) => (e as StoreItemGroupModel).toJson()).toList(),
+      'storesItemGroups': storesItemGroups
+          .map((e) => (e as StoreItemGroupModel).toJson())
+          .toList(),
     };
   }
 }

@@ -56,11 +56,13 @@ class ApiClient {
 
   // --- HTTP Methods wrapped for clarity ---
 
-  Future<Response> get(String path, {Map<String, dynamic>? queryParameters}) async {
+  Future<Response> get(String path,
+      {Map<String, dynamic>? queryParameters}) async {
     return await dio.get(path, queryParameters: queryParameters);
   }
 
-  Future<Response> post(String path, {dynamic data, Map<String, dynamic>? queryParameters}) async {
+  Future<Response> post(String path,
+      {dynamic data, Map<String, dynamic>? queryParameters}) async {
     return await dio.post(path, data: data, queryParameters: queryParameters);
   }
 
@@ -75,10 +77,14 @@ class ApiClient {
   /// Debug function to verify if the API is reachable
   Future<bool> checkConnectivity() async {
     try {
-      print('Connectivity Check: Pinging https://erp.neosending.com/swagger/index.html');
-      final response = await dio.get('https://erp.neosending.com/swagger/index.html');
+      print(
+          'Connectivity Check: Pinging https://erp.neosending.com/swagger/index.html');
+      final response =
+          await dio.get('https://erp.neosending.com/swagger/index.html');
       print('Connectivity Check OK | Status: ${response.statusCode}');
-      return response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 400;
+      return response.statusCode != null &&
+          response.statusCode! >= 200 &&
+          response.statusCode! < 400;
     } catch (e) {
       print('Connectivity Check FAILED | Error: $e');
       return false;

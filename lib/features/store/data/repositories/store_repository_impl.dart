@@ -38,6 +38,7 @@ class StoreRepositoryImpl implements StoreRepository {
       throw Exception('Server error: ${e.message}');
     }
   }
+
   @override
   Future<List<StoreGroupEntity>> getStoreGroups() async {
     try {

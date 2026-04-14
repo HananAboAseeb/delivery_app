@@ -7,7 +7,7 @@ import 'features/store/domain/usecases/get_stores_by_group_usecase.dart';
 import 'features/store/domain/usecases/get_stores_usecase.dart';
 
 // HomeCubit
-import 'features/home/presentation/cubit/home_cubit.dart';
+import 'features/home/logic/home_cubit.dart';
 
 // Core
 import 'core/network/api_client.dart';
@@ -56,40 +56,53 @@ import 'features/order/domain/usecases/create_order_usecase.dart';
 import 'features/order/domain/usecases/get_orders_usecase.dart';
 
 // --- PRESENTATION LAYER ---
-import 'features/auth/presentation/bloc/auth_bloc.dart';
-import 'features/product/presentation/bloc/product_bloc.dart';
-import 'features/cart/presentation/bloc/cart_cubit.dart';
-import 'features/order/presentation/bloc/order_bloc.dart';
+import 'features/auth/logic/auth_bloc.dart';
+import 'features/product/logic/product_bloc.dart';
+import 'features/cart/logic/cart_cubit.dart';
+import 'features/order/logic/order_bloc.dart';
 
 final sl = GetIt.instance; // sl = service locator
 
 Future<void> setupServiceLocator() async {
   // 1. Core Services (Singletons)
-  sl.registerLazySingleton<FlutterSecureStorage>(() => const FlutterSecureStorage());
+  sl.registerLazySingleton<FlutterSecureStorage>(
+      () => const FlutterSecureStorage());
   sl.registerLazySingleton<ApiClient>(() => ApiClient());
   sl.registerLazySingleton<SignalRService>(() => SignalRService());
   sl.registerLazySingleton<AppDatabase>(() => AppDatabase());
 
   // 2. Data Sources (Lazy Singletons)
   // Auth
-  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(apiClient: sl()));
-  sl.registerLazySingleton<UserLocalDataSource>(() => UserLocalDataSourceImpl(database: sl()));
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+      () => AuthRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<UserLocalDataSource>(
+      () => UserLocalDataSourceImpl(database: sl()));
   // Product
-  sl.registerLazySingleton<ProductRemoteDataSource>(() => ProductRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<ProductRemoteDataSource>(
+      () => ProductRemoteDataSourceImpl(apiClient: sl()));
   // Cart
-  sl.registerLazySingleton<CartLocalDataSource>(() => CartLocalDataSourceImpl(database: sl()));
+  sl.registerLazySingleton<CartLocalDataSource>(
+      () => CartLocalDataSourceImpl(database: sl()));
   // Order
-  sl.registerLazySingleton<OrderRemoteDataSource>(() => OrderRemoteDataSourceImpl(apiClient: sl()));
-  sl.registerLazySingleton<OrdersLocalDataSource>(() => OrdersLocalDataSourceImpl(database: sl()));
+  sl.registerLazySingleton<OrderRemoteDataSource>(
+      () => OrderRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<OrdersLocalDataSource>(
+      () => OrdersLocalDataSourceImpl(database: sl()));
   // Store
-  sl.registerLazySingleton<StoreRemoteDataSource>(() => StoreRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<StoreRemoteDataSource>(
+      () => StoreRemoteDataSourceImpl(apiClient: sl()));
 
   // 3. Repositories
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()));
-  sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<CartRepository>(() => CartRepositoryImpl(localDataSource: sl()));
-  sl.registerLazySingleton<OrderRepository>(() => OrderRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()));
-  sl.registerLazySingleton<StoreRepository>(() => StoreRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()));
+  sl.registerLazySingleton<ProductRepository>(
+      () => ProductRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<CartRepository>(
+      () => CartRepositoryImpl(localDataSource: sl()));
+  sl.registerLazySingleton<OrderRepository>(
+      () => OrderRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()));
+  sl.registerLazySingleton<StoreRepository>(
+      () => StoreRepositoryImpl(remoteDataSource: sl()));
 
   // 4. UseCases (Lazy Singletons)
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -117,7 +130,7 @@ Future<void> setupServiceLocator() async {
 
   // 5. BLoCs / Cubits (Factories)
   sl.registerFactory(() => ThemeCubit(sl()));
-  
+
   sl.registerFactory(() => AuthBloc(
         loginUseCase: sl(),
         registerUseCase: sl(),

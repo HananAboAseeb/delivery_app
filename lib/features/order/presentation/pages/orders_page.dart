@@ -6,13 +6,14 @@ class OrdersPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
         appBar: AppBar(
-          title: const Text('طلباتي', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: const Text('طلباتي',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           centerTitle: true,
           elevation: 0,
           backgroundColor: Colors.white,
@@ -21,7 +22,8 @@ class OrdersPage extends StatelessWidget {
             labelColor: theme.primaryColor,
             unselectedLabelColor: Colors.grey.shade500,
             indicatorColor: theme.primaryColor,
-            labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            labelStyle:
+                const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             tabs: const [
               Tab(text: "جارية"),
               Tab(text: "مكتملة"),
@@ -43,7 +45,7 @@ class OrdersPage extends StatelessWidget {
 
 class _OrderList extends StatelessWidget {
   final String statusFilter;
-  
+
   const _OrderList({required this.statusFilter});
 
   static final List<Map<String, dynamic>> _mockOrders = [
@@ -84,7 +86,8 @@ class _OrderList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final filteredOrders = _mockOrders.where((o) => o['status'] == statusFilter).toList();
+    final filteredOrders =
+        _mockOrders.where((o) => o['status'] == statusFilter).toList();
 
     if (filteredOrders.isEmpty) {
       return Center(
@@ -93,7 +96,11 @@ class _OrderList extends StatelessWidget {
           children: [
             Icon(Icons.receipt_long, size: 80, color: Colors.grey.shade300),
             const SizedBox(height: 16),
-            Text('لا توجد طلبات $statusFilter', style: TextStyle(fontSize: 18, color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
+            Text('لا توجد طلبات $statusFilter',
+                style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.bold)),
           ],
         ),
       );
@@ -104,7 +111,7 @@ class _OrderList extends StatelessWidget {
       itemCount: filteredOrders.length,
       itemBuilder: (context, index) {
         final order = filteredOrders[index];
-        
+
         Color statusColor;
         if (order['status'] == 'جارية') {
           statusColor = Colors.orange;
@@ -113,11 +120,12 @@ class _OrderList extends StatelessWidget {
         } else {
           statusColor = Colors.red;
         }
-        
+
         return GestureDetector(
           onTap: () {
             // Mock Navigation logic to order tracking
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('فتح تفاصيل الطلب ${order['id']}')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('فتح تفاصيل الطلب ${order['id']}')));
           },
           child: Container(
             margin: const EdgeInsets.only(bottom: 16),
@@ -126,7 +134,10 @@ class _OrderList extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4)),
               ],
             ),
             child: Column(
@@ -135,16 +146,22 @@ class _OrderList extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(order['id'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(order['id'],
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: statusColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        order['status'], 
-                        style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12),
+                        order['status'],
+                        style: TextStyle(
+                            color: statusColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12),
                       ),
                     ),
                   ],
@@ -166,15 +183,23 @@ class _OrderList extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(order['store'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text(order['store'],
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 4),
-                          Text('${order['itemsCount']} عناصر • ${order['date']}', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                          Text(
+                              '${order['itemsCount']} عناصر • ${order['date']}',
+                              style: TextStyle(
+                                  color: Colors.grey.shade500, fontSize: 13)),
                         ],
                       ),
                     ),
                     Text(
-                      '\$${order['total'].toStringAsFixed(2)}', 
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: theme.primaryColor),
+                      '\$${order['total'].toStringAsFixed(2)}',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: theme.primaryColor),
                     ),
                   ],
                 ),

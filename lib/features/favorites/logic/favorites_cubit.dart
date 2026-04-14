@@ -13,15 +13,16 @@ class FavoritesCubit extends Cubit<FavoritesState> {
   Future<void> loadFavorites() async {
     try {
       final dataStr = await _storage.read(key: _favKey);
-      
+
       if (dataStr == null || dataStr.isEmpty) {
-        emit(const FavoritesLoaded(favoriteStoreIds: {}, favoriteStoreNames: {}));
+        emit(const FavoritesLoaded(
+            favoriteStoreIds: {}, favoriteStoreNames: {}));
         return;
       }
 
       // Format expected: "id1|name1,id2|name2"
       final items = dataStr.split(',');
-      
+
       final Set<String> ids = {};
       final Set<String> names = {};
 
@@ -46,7 +47,7 @@ class FavoritesCubit extends Cubit<FavoritesState> {
 
   Future<void> toggleFavorite(String storeId, String storeName) async {
     Map<String, String> currentFavs = {};
-    
+
     if (state is FavoritesLoaded) {
       final currentState = state as FavoritesLoaded;
       final ids = currentState.favoriteStoreIds.toList();
@@ -65,7 +66,8 @@ class FavoritesCubit extends Cubit<FavoritesState> {
     }
 
     // Build the string back as expected: "id1|name1,id2|name2"
-    final List<String> combined = currentFavs.entries.map((e) => '${e.key}|${e.value}').toList();
+    final List<String> combined =
+        currentFavs.entries.map((e) => '${e.key}|${e.value}').toList();
     final newDataStr = combined.join(',');
 
     try {

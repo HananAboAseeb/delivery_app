@@ -3,7 +3,8 @@ import '../entities/product_entity.dart';
 import '../repositories/product_repository.dart';
 import 'package:equatable/equatable.dart';
 
-class GetProductByIdUseCase implements UseCase<ProductEntity, GetProductByIdParams> {
+class GetProductByIdUseCase
+    implements UseCase<ProductEntity, GetProductByIdParams> {
   final ProductRepository repository;
 
   GetProductByIdUseCase(this.repository);

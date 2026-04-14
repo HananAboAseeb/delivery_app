@@ -31,8 +31,10 @@ class CustomTextField extends StatelessWidget {
         hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
         prefixIcon: Icon(prefixIcon, color: Colors.grey.shade500),
         filled: true,
-        fillColor: const Color(0xFFF3F4F6), // Very light grey backgound like image
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        fillColor:
+            const Color(0xFFF3F4F6), // Very light grey backgound like image
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none, // Borderless

@@ -8,7 +8,8 @@ abstract class ProductRemoteDataSource {
   Future<List<ProductModel>> getProducts(int page, int pageSize);
   Future<ProductModel> getProductById(String id);
   Future<List<ProductModel>> searchProducts(String query);
-  Future<List<ProductModel>> getProductsByStore(String storeId, {String? itemGroupId, String? tenantId});
+  Future<List<ProductModel>> getProductsByStore(String storeId,
+      {String? itemGroupId, String? tenantId});
 }
 
 class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
@@ -25,7 +26,9 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       final List items = response.data is List ? response.data : [];
       debugPrint('✅ [ProductDS] items-cache → ${items.length} items');
       if (items.isNotEmpty) {
-        return items.map((json) => ProductModel.fromJson(json as Map<String, dynamic>)).toList();
+        return items
+            .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
+            .toList();
       }
     } catch (e) {
       debugPrint('⚠️ [ProductDS] items-cache failed: $e');
@@ -37,7 +40,9 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       final response = await apiClient.get('/api/ECommerce/items');
       final List items = response.data is List ? response.data : [];
       debugPrint('✅ [ProductDS] items → ${items.length} items');
-      return items.map((json) => ProductModel.fromJson(json as Map<String, dynamic>)).toList();
+      return items
+          .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       debugPrint('⚠️ [ProductDS] items failed: $e');
     }
@@ -50,15 +55,18 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         data: {'maxResultCount': pageSize, 'skipCount': (page - 1) * pageSize},
       );
       final data = response.data;
-      final List items = data is List ? data : (data is Map ? (data['items'] ?? []) : []);
+      final List items =
+          data is List ? data : (data is Map ? (data['items'] ?? []) : []);
       debugPrint('✅ [ProductDS] items/get-all → ${items.length} items');
       return items.map((json) {
-        final itemData = (json is Map && json.containsKey('item')) ? json['item'] : json;
+        final itemData =
+            (json is Map && json.containsKey('item')) ? json['item'] : json;
         return ProductModel.fromJson(itemData as Map<String, dynamic>);
       }).toList();
     } catch (e) {
       debugPrint('❌ [ProductDS] All product endpoints failed: $e');
-      throw ServerException(message: 'فشل في جلب المنتجات. تأكد من تسجيل الدخول. ($e)');
+      throw ServerException(
+          message: 'فشل في جلب المنتجات. تأكد من تسجيل الدخول. ($e)');
     }
   }
 
@@ -85,7 +93,8 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<List<ProductModel>> getProductsByStore(String storeId, {String? itemGroupId, String? tenantId}) async {
+  Future<List<ProductModel>> getProductsByStore(String storeId,
+      {String? itemGroupId, String? tenantId}) async {
     // ══════════════════════════════════════════════════════════════════
     // Uses POST /api/ECommerce/store-brows/get-group
     // This is the CORRECT endpoint that returns real store-specific
@@ -96,7 +105,8 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     final effectiveTenantId = tenantId;
 
     debugPrint('🔄 [ProductDS] Fetching products via store-brows/get-group');
-    debugPrint('   storeId: $storeId, groupId: $itemGroupId, tenant: $effectiveTenantId');
+    debugPrint(
+        '   storeId: $storeId, groupId: $itemGroupId, tenant: $effectiveTenantId');
 
     try {
       final Map<String, dynamic> requestBody = {
@@ -126,13 +136,16 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       List items = [];
       if (data is Map) {
         items = data['items'] ?? [];
-        debugPrint('✅ [ProductDS] store-brows → ${items.length} items (total: ${data['totalCount']})');
+        debugPrint(
+            '✅ [ProductDS] store-brows → ${items.length} items (total: ${data['totalCount']})');
       } else if (data is List) {
         items = data;
         debugPrint('✅ [ProductDS] store-brows → ${items.length} items');
       }
 
-      return items.map((json) => ProductModel.fromJson(json as Map<String, dynamic>)).toList();
+      return items
+          .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       debugPrint('❌ [ProductDS] store-brows/get-group failed: $e');
       throw ServerException(message: 'فشل في جلب أصناف المتجر: $e');

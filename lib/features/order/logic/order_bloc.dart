@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/order_entity.dart';
-import '../../domain/usecases/create_order_usecase.dart';
-import '../../domain/usecases/get_orders_usecase.dart';
+import '../domain/entities/order_entity.dart';
+import '../domain/usecases/create_order_usecase.dart';
+import '../domain/usecases/get_orders_usecase.dart';
 
 // --- EVENTS ---
 abstract class OrderEvent extends Equatable {
@@ -28,6 +28,7 @@ abstract class OrderState extends Equatable {
 }
 
 class OrderInitial extends OrderState {}
+
 class OrderLoading extends OrderState {}
 
 class OrdersLoaded extends OrderState {
@@ -64,17 +65,20 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     on<FetchOrdersEvent>(_onFetchOrders);
   }
 
-  Future<void> _onCreateOrder(CreateOrderEvent event, Emitter<OrderState> emit) async {
+  Future<void> _onCreateOrder(
+      CreateOrderEvent event, Emitter<OrderState> emit) async {
     emit(OrderLoading());
     try {
-      final newOrder = await createOrderUseCase(CreateOrderParams(order: event.order));
+      final newOrder =
+          await createOrderUseCase(CreateOrderParams(order: event.order));
       emit(OrderCreated(newOrder));
     } catch (e) {
       emit(OrderError(e.toString()));
     }
   }
 
-  Future<void> _onFetchOrders(FetchOrdersEvent event, Emitter<OrderState> emit) async {
+  Future<void> _onFetchOrders(
+      FetchOrdersEvent event, Emitter<OrderState> emit) async {
     emit(OrderLoading());
     try {
       final orders = await getOrdersUseCase(const GetOrdersParams());

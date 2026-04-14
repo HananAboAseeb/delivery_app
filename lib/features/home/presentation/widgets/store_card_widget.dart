@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../favorites/presentation/cubit/favorites_cubit.dart';
-import '../../../favorites/presentation/cubit/favorites_state.dart';
+import 'package:my_store/features/favorites/logic/favorites_cubit.dart';
+import 'package:my_store/features/favorites/logic/favorites_state.dart';
 
 class StoreCardWidget extends StatelessWidget {
   final String name;
@@ -24,7 +24,7 @@ class StoreCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -52,16 +52,18 @@ class StoreCardWidget extends StatelessWidget {
                   Container(
                     color: theme.primaryColor.withOpacity(0.1),
                     child: Center(
-                      child: Icon(Icons.storefront, size: 40, color: theme.primaryColor),
+                      child: Icon(Icons.storefront,
+                          size: 40, color: theme.primaryColor),
                     ),
                   ),
-                  
+
                   // Rating Badge
                   Positioned(
                     bottom: 8,
                     left: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(8),
@@ -69,11 +71,13 @@ class StoreCardWidget extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.star_rounded, color: theme.primaryColor, size: 14),
+                          Icon(Icons.star_rounded,
+                              color: theme.primaryColor, size: 14),
                           const SizedBox(width: 4),
                           Text(
                             rating.toString(),
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -89,7 +93,9 @@ class StoreCardWidget extends StatelessWidget {
                         final isFavorite = state.isFavorite(name);
                         return GestureDetector(
                           onTap: () {
-                            context.read<FavoritesCubit>().toggleFavorite(name, name);
+                            context
+                                .read<FavoritesCubit>()
+                                .toggleFavorite(name, name);
                           },
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
@@ -99,8 +105,12 @@ class StoreCardWidget extends StatelessWidget {
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              isFavorite ? Icons.favorite : Icons.favorite_border,
-                              color: isFavorite ? Colors.red : Colors.grey.shade600,
+                              isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: isFavorite
+                                  ? Colors.red
+                                  : Colors.grey.shade600,
                               size: 18,
                             ),
                           ),
@@ -111,7 +121,7 @@ class StoreCardWidget extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // --- Details ---
             Expanded(
               flex: 5,
@@ -123,23 +133,31 @@ class StoreCardWidget extends StatelessWidget {
                   children: [
                     Text(
                       name,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       category,
-                      style: TextStyle(fontSize: 11, color: theme.primaryColor, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                          fontSize: 11,
+                          color: theme.primaryColor,
+                          fontWeight: FontWeight.w600),
                       maxLines: 1,
                     ),
                     Row(
                       children: [
-                        Icon(Icons.location_on, size: 14, color: Colors.grey.shade500),
+                        Icon(Icons.location_on,
+                            size: 14, color: Colors.grey.shade500),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             distance,
-                            style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                            style: TextStyle(
+                                fontSize: 11, color: Colors.grey.shade600),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -148,11 +166,13 @@ class StoreCardWidget extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        Icon(Icons.access_time_filled, size: 14, color: Colors.grey.shade500),
+                        Icon(Icons.access_time_filled,
+                            size: 14, color: Colors.grey.shade500),
                         const SizedBox(width: 4),
                         Text(
                           deliveryTime,
-                          style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                          style: TextStyle(
+                              fontSize: 11, color: Colors.grey.shade600),
                         ),
                       ],
                     ),

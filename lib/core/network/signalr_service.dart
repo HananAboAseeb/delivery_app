@@ -2,20 +2,25 @@ import 'dart:async';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:signalr_core/signalr_core.dart';
 
-/// Single Responsibility: Manages the SignalR WebSocket connection 
+/// Single Responsibility: Manages the SignalR WebSocket connection
 /// and provides streams for real-time app events.
 class SignalRService {
   HubConnection? _hubConnection;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  
-  static const String _hubUrl = 'https://erp.neosending.com/hubs/commerce-financial';
+
+  static const String _hubUrl =
+      'https://erp.neosending.com/hubs/commerce-financial';
 
   // Streams for broadcasting real-time events to the BLoCs
-  final _orderStatusController = StreamController<Map<String, dynamic>>.broadcast();
-  final _driverLocationController = StreamController<Map<String, dynamic>>.broadcast();
+  final _orderStatusController =
+      StreamController<Map<String, dynamic>>.broadcast();
+  final _driverLocationController =
+      StreamController<Map<String, dynamic>>.broadcast();
 
-  Stream<Map<String, dynamic>> get onOrderStatusChanged => _orderStatusController.stream;
-  Stream<Map<String, dynamic>> get onDriverLocationUpdated => _driverLocationController.stream;
+  Stream<Map<String, dynamic>> get onOrderStatusChanged =>
+      _orderStatusController.stream;
+  Stream<Map<String, dynamic>> get onDriverLocationUpdated =>
+      _driverLocationController.stream;
 
   /// Initializes the connection. Call this after successful login.
   Future<void> connect() async {
@@ -31,13 +36,17 @@ class SignalRService {
               transport: HttpTransportType.webSockets,
               skipNegotiation: false,
             ))
-        .withAutomaticReconnect(<int>[0, 2000, 10000, 30000]) // Exponential backoff retries
+        .withAutomaticReconnect(
+            <int>[0, 2000, 10000, 30000]) // Exponential backoff retries
         .build();
 
     // Register generic connection listeners
-    _hubConnection?.onclose((error) => print('SignalR Connection Closed: $error'));
-    _hubConnection?.onreconnecting((error) => print('SignalR Reconnecting: $error'));
-    _hubConnection?.onreconnected((connectionId) => print('SignalR Reconnected! ID: $connectionId'));
+    _hubConnection
+        ?.onclose((error) => print('SignalR Connection Closed: $error'));
+    _hubConnection
+        ?.onreconnecting((error) => print('SignalR Reconnecting: $error'));
+    _hubConnection?.onreconnected(
+        (connectionId) => print('SignalR Reconnected! ID: $connectionId'));
 
     // Register event hooks from Swagger/abp analysis
     _setupEventHooks();

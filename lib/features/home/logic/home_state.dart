@@ -61,7 +61,9 @@ class HomeState extends Equatable {
   }) {
     return HomeState(
       selectedCategory: selectedCategory ?? this.selectedCategory,
-      selectedGroupId: selectedGroupId != null ? (selectedGroupId == 'clear' ? null : selectedGroupId) : this.selectedGroupId,
+      selectedGroupId: selectedGroupId != null
+          ? (selectedGroupId == 'clear' ? null : selectedGroupId)
+          : this.selectedGroupId,
       selectedFilter: selectedFilter ?? this.selectedFilter,
       searchQuery: searchQuery ?? this.searchQuery,
       currentFavorites: currentFavorites ?? this.currentFavorites,

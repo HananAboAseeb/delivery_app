@@ -15,14 +15,16 @@ class OrdersLocalDataSourceImpl implements OrdersLocalDataSource {
   @override
   Future<List<OrderModel>> getOrders() async {
     final orders = await database.getAllOrders();
-    return orders.map((e) => OrderModel(
-      id: e.id,
-      masterOrderNumber: e.orderNumber.toString(),
-      totalPrice: e.totalAmount,
-      status: e.status,
-      creationTime: e.orderDate,
-      currency: e.currency,
-    )).toList();
+    return orders
+        .map((e) => OrderModel(
+              id: e.id,
+              masterOrderNumber: e.orderNumber.toString(),
+              totalPrice: e.totalAmount,
+              status: e.status,
+              creationTime: e.orderDate,
+              currency: e.currency,
+            ))
+        .toList();
   }
 
   @override
