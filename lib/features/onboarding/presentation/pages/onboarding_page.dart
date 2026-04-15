@@ -1,6 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class OnboardingItem {
+  final String imagePath;
+  final String title1;
+  final String titleHighlight;
+  final String title2;
+  final String description;
+
+  OnboardingItem({
+    required this.imagePath,
+    required this.title1,
+    required this.titleHighlight,
+    required this.title2,
+    required this.description,
+  });
+}
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -13,28 +30,28 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<Map<String, String>> _onboardingData = [
-    {
-      "title": "All Your Needs, One App",
-      "description":
-          "From gourmet meals to daily groceries, delivered instantly.",
-      "image":
-          "https://cdn-icons-png.flaticon.com/512/1046/1046784.png" // صورة توصيل عامة
-    },
-    {
-      "title": "Fast & Trackable Delivery",
-      "description":
-          "Real-time updates from store to door. Your curated essentials are always within sight.",
-      "image":
-          "https://cdn-icons-png.flaticon.com/512/190/190411.png" // صورة رجل التوصيل
-    },
-    {
-      "title": "Smart Wallet & Easy Payments",
-      "description":
-          "Securely store funds in your app wallet for faster checkouts. Pay with cards or cash on delivery.",
-      "image":
-          "https://cdn-icons-png.flaticon.com/512/6335/6335800.png" // صورة محفظة
-    },
+  final List<OnboardingItem> _data = [
+    OnboardingItem(
+      imagePath: "assets/images/onboarding_groceries.png",
+      title1: "كل ",
+      titleHighlight: "احتياجاتك",
+      title2: "\nفي تطبيق واحد",
+      description: "الوجبات الشهية ومقاضي البيت اليومية،\nبين يديك في أي وقت وبكل سهولة.",
+    ),
+    OnboardingItem(
+      imagePath: "assets/images/onboarding_delivery.png",
+      title1: "توصيل ",
+      titleHighlight: "سريع ",
+      title2: "\nوتتبع مباشر",
+      description: "اطلب وتتبع طلبك خطوة بخطوة\nمن متجرك المفضل إليك بكل شفافية.",
+    ),
+    OnboardingItem(
+      imagePath: "assets/images/onboarding_wallet.png",
+      title1: "محفظة ",
+      titleHighlight: "ذكية ",
+      title2: "\nودفع مرن",
+      description: "خيارات دفع تناسبك، اشحن محفظتك،\nأو ادفع بالبطاقة، أو نقداً عند الاستلام.",
+    ),
   ];
 
   Future<void> _completeOnboarding() async {
@@ -46,169 +63,200 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _nextPage() {
-    _pageController.nextPage(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeIn,
-    );
+    if (_currentPage == _data.length - 1) {
+      _completeOnboarding();
+    } else {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // Override the primary color to a rich vibrant orange as requested
+    final primaryColor = const Color(0xFFE65100); 
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                itemCount: _onboardingData.length,
-                itemBuilder: (context, index) {
-                  return OnboardingContent(
-                    image: _onboardingData[index]["image"]!,
-                    title: _onboardingData[index]["title"]!,
-                    description: _onboardingData[index]["description"]!,
-                  );
-                },
-              ),
-            ),
-
-            // البار السفلي للتحكم
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // زِر Skip يظهر فقط في الصفحات الأولى
-                  _currentPage != _onboardingData.length - 1
-                      ? TextButton(
-                          onPressed: _completeOnboarding,
-                          child: Text(
-                            "Skip",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: theme.colorScheme.secondary,
-                            ),
-                          ),
-                        )
-                      : const SizedBox(
-                          width: 60), // فضاء وهمي للحفاظ على المحاذاة
-
-                  // مؤشرات الصفحات (Dots)
-                  Row(
-                    children: List.generate(
-                      _onboardingData.length,
-                      (index) => buildDot(index, context),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: Colors.white, 
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Skip Button
+              Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0, left: 24.0),
+                  child: TextButton(
+                    onPressed: _completeOnboarding,
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.grey.shade400,
+                    ),
+                    child: Text(
+                      "تخطي",
+                      style: GoogleFonts.cairo(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        color: Colors.blueGrey.shade300,
+                      ),
                     ),
                   ),
+                ),
+              ),
 
-                  // زر Next أو Get Started
-                  _currentPage == _onboardingData.length - 1
-                      ? ElevatedButton(
-                          onPressed: _completeOnboarding,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: theme.primaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text("Get Started",
-                              style: TextStyle(color: Colors.white)),
-                        )
-                      : TextButton(
-                          onPressed: _nextPage,
-                          child: Text(
-                            "Next",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: theme.primaryColor,
+              // PageView
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  physics: const BouncingScrollPhysics(),
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                  },
+                  itemCount: _data.length,
+                  itemBuilder: (context, index) {
+                    final item = _data[index];
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Illustration Local Assets Generated Extremely High Quality
+                        Expanded(
+                          flex: 55,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Hero(
+                              tag: 'img_hero_$index',
+                              child: Image.asset(
+                                item.imagePath,
+                                fit: BoxFit.contain,
+                              ),
                             ),
                           ),
                         ),
-                ],
+                        
+                        Expanded(
+                          flex: 45,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 24),
+                                // Indicators
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: List.generate(
+                                    _data.length,
+                                    (dotIndex) => _buildIndicator(dotIndex, primaryColor),
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+
+                                // Title (RichText dual color)
+                                RichText(
+                                  textAlign: TextAlign.center,
+                                  text: TextSpan(
+                                    style: GoogleFonts.tajawal(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.w900,
+                                      color: const Color(0xFF1E1E1E),
+                                      height: 1.3,
+                                    ),
+                                    children: [
+                                      TextSpan(text: item.title1),
+                                      TextSpan(
+                                        text: item.titleHighlight,
+                                        style: TextStyle(color: primaryColor),
+                                      ),
+                                      TextSpan(text: item.title2),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 18),
+
+                                // Description
+                                Text(
+                                  item.description,
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 16,
+                                    color: const Color(0xFF757575),
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.6,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ); 
+                  },
+                ),
               ),
-            ),
-          ],
+
+              // Bottom Button
+              Padding(
+                padding: const EdgeInsets.only(bottom: 48.0, left: 32, right: 32),
+                child: InkWell(
+                  onTap: _nextPage,
+                  borderRadius: BorderRadius.circular(30),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    decoration: BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryColor.withOpacity(0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    // Button Text Animation
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: ScaleTransition(scale: animation, child: child),
+                        );
+                      },
+                      child: Text(
+                        _currentPage == _data.length - 1 ? "ابدأ تجربتك" : "التالي",
+                        key: ValueKey<int>(_currentPage),
+                        style: GoogleFonts.cairo(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget buildDot(int index, BuildContext context) {
+  Widget _buildIndicator(int index, Color primaryColor) {
+    bool isActive = _currentPage == index;
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      margin: const EdgeInsets.only(right: 5),
-      height: 8,
-      width: _currentPage == index ? 24 : 8,
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      height: 5,
+      width: isActive ? 24 : 16,
       decoration: BoxDecoration(
-        color: _currentPage == index
-            ? Theme.of(context).primaryColor
-            : Colors.grey.shade300,
-        borderRadius: BorderRadius.circular(4),
-      ),
-    );
-  }
-}
-
-class OnboardingContent extends StatelessWidget {
-  const OnboardingContent({
-    super.key,
-    required this.image,
-    required this.title,
-    required this.description,
-  });
-
-  final String image;
-  final String title;
-  final String description;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(40.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Spacer(),
-          Image.network(
-            image,
-            height: 250,
-            errorBuilder: (context, error, stackTrace) => const Icon(
-              Icons.image_not_supported,
-              size: 200,
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(height: 48),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).primaryColor,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            description,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
-          ),
-          const Spacer(),
-        ],
+        color: isActive ? primaryColor : Colors.grey.shade300,
+        borderRadius: BorderRadius.circular(3),
       ),
     );
   }
