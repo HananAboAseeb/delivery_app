@@ -8,6 +8,17 @@
 .buildlog/
 .history
 .svn/
+
+# Security and API Keys (DO NOT REMOVE)
+*.env
+.env
+.env.*
+env.g.dart
+*.g.dart
+*.freezed.dart
+config.json
+keys/
+
 migrate_working_dir/
 
 # IntelliJ related
