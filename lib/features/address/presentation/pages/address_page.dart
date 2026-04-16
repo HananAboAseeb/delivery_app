@@ -27,8 +27,12 @@ class _AddressPageState extends State<AddressPage> {
     }
   ];
 
-  void _showAddAddressSheet(BuildContext context) {
+  void _showAddAddressSheet(BuildContext context, {Map<String, dynamic>? editAddress, int? editIndex}) {
     final theme = Theme.of(context);
+    final _nameCtrl = TextEditingController(text: editAddress?['name'] ?? '');
+    final _streetCtrl = TextEditingController(text: editAddress?['street'] ?? '');
+    final _bldCtrl = TextEditingController(text: editAddress?['building'] ?? '');
+    final _phoneCtrl = TextEditingController(text: editAddress?['phone'] ?? '');
 
     showModalBottomSheet(
       context: context,
@@ -36,76 +40,113 @@ class _AddressPageState extends State<AddressPage> {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) {
-        bool isDefault = false;
+        bool isDefault = editAddress?['isDefault'] ?? false;
         return StatefulBuilder(builder: (context, setModalState) {
           return Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 5,
-                      decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text('إضافة عنوان جديد',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center),
-                  const SizedBox(height: 24),
-                  _buildTextField(
-                      'اسم الموقع (مثال: المنزل)', Icons.label_outline),
-                  const SizedBox(height: 16),
-                  _buildTextField('الشارع', Icons.add_road),
-                  const SizedBox(height: 16),
-                  _buildTextField('المبنى/الشقة', Icons.apartment),
-                  const SizedBox(height: 16),
-                  _buildTextField('رقم الهاتف للتواصل', Icons.phone_outlined),
-                  const SizedBox(height: 16),
-                  CheckboxListTile(
-                    title: const Text('تعيين كعنوان افتراضي',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    value: isDefault,
-                    activeColor: theme.primaryColor,
-                    contentPadding: EdgeInsets.zero,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    onChanged: (val) {
-                      setModalState(() => isDefault = val ?? false);
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('تم إضافة العنوان بنجاح')));
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.primaryColor,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16)),
-                        elevation: 0,
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: SingleChildScrollView(
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 5,
+                        decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: const Text('حفظ العنوان',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 24),
+                    Text(editAddress == null ? 'إضافة عنوان جديد' : 'تعديل العنوان',
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center),
+                    const SizedBox(height: 24),
+                    _buildTextField('اسم الموقع (مثال: المنزل)', Icons.label_outline, _nameCtrl),
+                    const SizedBox(height: 16),
+                    _buildTextField('الشارع', Icons.add_road, _streetCtrl),
+                    const SizedBox(height: 16),
+                    _buildTextField('المبنى/الشقة', Icons.apartment, _bldCtrl),
+                    const SizedBox(height: 16),
+                    _buildTextField('رقم الهاتف للتواصل', Icons.phone_outlined, _phoneCtrl),
+                    const SizedBox(height: 16),
+                    CheckboxListTile(
+                      title: const Text('تعيين كعنوان افتراضي',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      value: isDefault,
+                      activeColor: theme.primaryColor,
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      onChanged: (val) {
+                        setModalState(() => isDefault = val ?? false);
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_nameCtrl.text.isEmpty || _streetCtrl.text.isEmpty) {
+                             ScaffoldMessenger.of(context).showSnackBar(
+                               const SnackBar(content: Text('الرجاء إدخال اسم الموقع والشارع كحد أدنى'))
+                             );
+                             return;
+                          }
+                          setState(() {
+                            if (isDefault) {
+                               for (var addr in _savedAddresses) { addr['isDefault'] = false; }
+                            }
+                            final updatedAddr = {
+                              "id": editAddress?['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+                              "name": _nameCtrl.text,
+                              "street": _streetCtrl.text,
+                              "building": _bldCtrl.text.isNotEmpty ? _bldCtrl.text : "بدون معلومات إضافية",
+                              "phone": _phoneCtrl.text.isNotEmpty ? _phoneCtrl.text : "غير محدد",
+                              "isDefault": _savedAddresses.isEmpty && editAddress == null ? true : isDefault,
+                            };
+
+                            if (editAddress != null && editIndex != null) {
+                                _savedAddresses[editIndex] = updatedAddr;
+                            } else {
+                                _savedAddresses.add(updatedAddr);
+                            }
+                          });
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(editAddress == null ? 'تم إضافة العنوان بنجاح' : 'تم تحديث العنوان بنجاح')));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.primaryColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16)),
+                          elevation: 0,
+                        ),
+                        child: Text(editAddress == null ? 'حفظ العنوان' : 'حفظ التحديثات',
+                            style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white)),
+                      ),
+                    ),
+                    if (editAddress != null) ...[
+                      const SizedBox(height: 12),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _savedAddresses.removeAt(editIndex!);
+                          });
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('تم حذف العنوان'), backgroundColor: Colors.red));
+                        },
+                        child: const Text('حذف هذا العنوان', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                      )
+                    ]
+                  ],
+                ),
               ),
             ),
           );
@@ -114,8 +155,9 @@ class _AddressPageState extends State<AddressPage> {
     );
   }
 
-  Widget _buildTextField(String hint, IconData icon) {
+  Widget _buildTextField(String hint, IconData icon, TextEditingController controller) {
     return TextField(
+      controller: controller,
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon, color: Colors.grey.shade500),
@@ -139,7 +181,7 @@ class _AddressPageState extends State<AddressPage> {
             style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        foregroundColor: theme.primaryColor,
         elevation: 0,
         actions: [
           IconButton(
@@ -227,7 +269,7 @@ class _AddressPageState extends State<AddressPage> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.edit_outlined, color: Colors.grey),
-                  onPressed: () => _showAddAddressSheet(context), // Mock edit
+                  onPressed: () => _showAddAddressSheet(context, editAddress: addr, editIndex: index),
                 )
               ],
             ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_store/features/cart/logic/cart_cubit.dart';
-import 'package:my_store/features/cart/domain/entities/cart_item_entity.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -38,11 +39,20 @@ class _CartPageState extends State<CartPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: const Color(0xFFF7F8FA),
       appBar: AppBar(
-        title:
-            const Text('السلة', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          'سلة المشتريات', 
+          style: GoogleFonts.tajawal(
+            fontWeight: FontWeight.w800,
+            fontSize: 20,
+            color: Colors.black87
+          )
+        ),
         centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: BlocBuilder<CartCubit, CartState>(
         builder: (context, state) {
@@ -60,18 +70,36 @@ class _CartPageState extends State<CartPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.shopping_cart_outlined,
-                        size: 100, color: Colors.grey.shade300),
+                    Container(
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        color: theme.primaryColor.withOpacity(0.05),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.shopping_basket_outlined,
+                          size: 80, color: theme.primaryColor.withOpacity(0.7)),
+                    ),
                     const SizedBox(height: 24),
-                    Text('السلة فارغة',
-                        style: TextStyle(
+                    Text('سلتك فارغة تماماً',
+                        style: GoogleFonts.cairo(
                             fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade800)),
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black87)),
                     const SizedBox(height: 12),
-                    Text('قم بإضافة بعض المنتجات لتظهر هنا',
-                        style: TextStyle(
-                            fontSize: 16, color: Colors.grey.shade500)),
+                    Text('يبدو أنك لم تضف أي أطباق شهية بعد',
+                        style: GoogleFonts.cairo(
+                            fontSize: 15, color: Colors.grey.shade500)),
+                    const SizedBox(height: 40),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.primaryColor,
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        elevation: 0,
+                      ),
+                      onPressed: () => context.go('/home'),
+                      child: Text('اكتشف المطاعم', style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                    )
                   ],
                 ),
               );
@@ -84,33 +112,48 @@ class _CartPageState extends State<CartPage> {
               children: [
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                     itemCount: items.length,
                     itemBuilder: (context, index) {
                       final item = items[index];
-                      // Use a placeholder if there's no item image passed down right now
+                      // High quality mock image via ui-avatars
                       final imageUrl =
-                          "https://ui-avatars.com/api/?name=${Uri.encodeComponent(item.productName)}&background=random&size=128";
+                          "https://ui-avatars.com/api/?name=${Uri.encodeComponent(item.productName)}&background=FFE0B2&color=F57C00&size=128&rounded=false&font-size=0.4";
 
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 20),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4)),
+                                color: Colors.black.withOpacity(0.03),
+                                blurRadius: 20,
+                                spreadRadius: 0,
+                                offset: const Offset(0, 8)),
                           ],
                         ),
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.network(imageUrl,
-                                  width: 80, height: 80, fit: BoxFit.cover),
+                            // Beautiful rounded image
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  )
+                                ]
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Image.network(imageUrl,
+                                    width: 90, height: 90, fit: BoxFit.cover),
+                              ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
@@ -120,58 +163,82 @@ class _CartPageState extends State<CartPage> {
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Expanded(
                                         child: Text(
                                           item.productName,
-                                          style: const TextStyle(
+                                          style: GoogleFonts.cairo(
                                               fontSize: 16,
-                                              fontWeight: FontWeight.bold),
-                                          maxLines: 1,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87),
+                                          maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      IconButton(
-                                        constraints: const BoxConstraints(),
-                                        padding: EdgeInsets.zero,
-                                        icon: const Icon(Icons.delete_outline,
-                                            color: Colors.red),
-                                        onPressed: () => _removeItem(item.id),
+                                      InkWell(
+                                        borderRadius: BorderRadius.circular(12),
+                                        onTap: () => _removeItem(item.id),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(6),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red.shade50,
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: Icon(Icons.delete_outline_rounded,
+                                              color: Colors.red.shade400, size: 20),
+                                        ),
                                       ),
                                     ],
                                   ),
-                                  Text(
-                                    item.storeName,
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey.shade500),
-                                  ),
                                   const SizedBox(height: 4),
                                   Text(
-                                      '${item.unitPrice.toStringAsFixed(0)} ر.ي',
-                                      style: TextStyle(
-                                          color: theme.primaryColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16)),
-                                  const SizedBox(height: 8),
+                                    item.storeName,
+                                    style: GoogleFonts.cairo(
+                                        fontSize: 13,
+                                        color: Colors.grey.shade500,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(height: 12),
                                   Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      _qtyButton(
-                                          Icons.remove,
-                                          () => _updateQuantity(
-                                              item.id, item.quantity, -1)),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 16),
-                                        child: Text(item.quantity.toString(),
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16)),
-                                      ),
-                                      _qtyButton(
-                                          Icons.add,
-                                          () => _updateQuantity(
-                                              item.id, item.quantity, 1)),
+                                      Text(
+                                          '${item.unitPrice.toStringAsFixed(0)} ر.ي',
+                                          style: GoogleFonts.cairo(
+                                              color: theme.primaryColor,
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 18)),
+                                      
+                                      // Elegant Quantity Selector
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.shade100,
+                                          borderRadius: BorderRadius.circular(30),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            _qtyButton(
+                                                Icons.remove_rounded,
+                                                () => _updateQuantity(
+                                                    item.id, item.quantity, -1)),
+                                            Container(
+                                              constraints: const BoxConstraints(minWidth: 24),
+                                              alignment: Alignment.center,
+                                              child: Text(item.quantity.toString(),
+                                                  style: GoogleFonts.cairo(
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 15,
+                                                      color: Colors.black87)),
+                                            ),
+                                            _qtyButton(
+                                                Icons.add_rounded,
+                                                () => _updateQuantity(
+                                                    item.id, item.quantity, 1), isAdd: true, theme: theme),
+                                          ],
+                                        ),
+                                      )
                                     ],
                                   )
                                 ],
@@ -184,70 +251,89 @@ class _CartPageState extends State<CartPage> {
                   ),
                 ),
 
-                // Checkout Section
+                // Premium Checkout Section
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(28),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 20,
                           offset: const Offset(0, -5))
                     ],
                     borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(24)),
+                        const BorderRadius.vertical(top: Radius.circular(36)),
                   ),
                   child: SafeArea(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _summaryRow('المجموع الجزئي', subtotal),
-                        const SizedBox(height: 8),
-                        _summaryRow('رسوم التوصيل (تقريبي)', deliveryFee),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          child: Divider(),
+                        _summaryRow('قيمة الطلب', subtotal),
+                        const SizedBox(height: 12),
+                        _summaryRow('رسوم التوصيل', deliveryFee),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Divider(color: Colors.grey.shade200, thickness: 1.5),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('الإجمالي',
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold)),
+                            Text('الإجمالي',
+                                style: GoogleFonts.cairo(
+                                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
                             Text('${total.toStringAsFixed(0)} ر.ي',
-                                style: TextStyle(
-                                    fontSize: 22,
+                                style: GoogleFonts.cairo(
+                                    fontSize: 24,
                                     fontWeight: FontWeight.w900,
                                     color: theme.primaryColor)),
                           ],
                         ),
-                        const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 56,
+                        const SizedBox(height: 28),
+                        
+                        // Grand Checkout Button
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: theme.primaryColor.withOpacity(0.3),
+                                blurRadius: 15,
+                                offset: const Offset(0, 8),
+                              )
+                            ]
+                          ),
                           child: ElevatedButton(
                             onPressed: () {
-                              // Perform Checkout logic here
                               context.read<CartCubit>().clearCart();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: const Text(
-                                      'تم استقبال الطلب بنجاح! شكراً لك'),
-                                  backgroundColor: Colors.green.shade600,
+                                  content: Row(
+                                    children: [
+                                      const Icon(Icons.check_circle_rounded, color: Colors.white),
+                                      const SizedBox(width: 12),
+                                      Text('تم استقبال الطلب بنجاح! شكراً لك', style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                  backgroundColor: const Color(0xFF43A047),
                                   behavior: SnackBarBehavior.floating,
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12)),
+                                      borderRadius: BorderRadius.circular(16)),
+                                  margin: const EdgeInsets.all(20),
+                                  elevation: 5,
                                 ),
                               );
+                              context.go('/home');
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: theme.primaryColor,
+                              padding: const EdgeInsets.symmetric(vertical: 18),
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16)),
+                                  borderRadius: BorderRadius.circular(20)),
                               elevation: 0,
                             ),
-                            child: const Text('إتمام الطلب',
-                                style: TextStyle(
+                            child: Text('تأكيد وإتمام الطلب',
+                                style: GoogleFonts.tajawal(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white)),
@@ -272,23 +358,31 @@ class _CartPageState extends State<CartPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+            style: GoogleFonts.cairo(fontSize: 15, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
         Text('${amount.toStringAsFixed(0)} ر.ي',
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
       ],
     );
   }
 
-  Widget _qtyButton(IconData icon, VoidCallback onTap) {
+  Widget _qtyButton(IconData icon, VoidCallback onTap, {bool isAdd = false, ThemeData? theme}) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(8),
+          color: isAdd ? theme?.primaryColor : Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: isAdd ? [] : [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2)
+            )
+          ]
         ),
-        child: Icon(icon, size: 20, color: Colors.black87),
+        child: Icon(icon, size: 18, color: isAdd ? Colors.white : Colors.black87),
       ),
     );
   }

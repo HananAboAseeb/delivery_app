@@ -108,26 +108,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.adjust_rounded,
-                                color: theme.primaryColor, size: 28),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'WASL',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1.2,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: size.height * 0.12),
+                        SizedBox(height: size.height * 0.08),
 
                         const Text(
                           'إنشاء حساب جديد',
@@ -173,62 +154,68 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         // --- Phone Input with Country Code ---
                         _buildLabel('رقم الهاتف'),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              height: 56,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade50,
-                                borderRadius: BorderRadius.circular(12),
+                        Directionality(
+                          textDirection: TextDirection.ltr,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: 56,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade50,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Center(
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      value: _selectedCountryCode,
+                                      icon: const Icon(Icons.arrow_drop_down,
+                                          color: Colors.grey),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                          fontSize: 16),
+                                      items: const [
+                                        DropdownMenuItem(
+                                            value: '+967',
+                                            child: Text('🇾🇪 +967')),
+                                        DropdownMenuItem(
+                                            value: '+966',
+                                            child: Text('🇸🇦 +966')),
+                                        DropdownMenuItem(
+                                            value: '+971',
+                                            child: Text('🇦🇪 +971')),
+                                      ],
+                                      onChanged: (val) {
+                                        if (val != null)
+                                          setState(
+                                              () => _selectedCountryCode = val);
+                                      },
+                                    ),
+                                  ),
+                                ),
                               ),
-                              child: Center(
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: _selectedCountryCode,
-                                    icon: const Icon(Icons.arrow_drop_down,
-                                        color: Colors.grey),
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
-                                        fontSize: 16),
-                                    items: const [
-                                      DropdownMenuItem(
-                                          value: '+967',
-                                          child: Text('🇾🇪 +967')),
-                                      DropdownMenuItem(
-                                          value: '+966',
-                                          child: Text('🇸🇦 +966')),
-                                      DropdownMenuItem(
-                                          value: '+971',
-                                          child: Text('🇦🇪 +971')),
-                                    ],
-                                    onChanged: (val) {
-                                      if (val != null)
-                                        setState(
-                                            () => _selectedCountryCode = val);
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Directionality(
+                                  textDirection: TextDirection.rtl, // keep the inside context RTL if customTextField needs it, wait, actually numbers should be LTR too.
+                                  child: CustomTextField(
+                                    controller: _phoneController,
+                                    labelText: '77xxxxxxx',
+                                    prefixIcon: Icons.phone_android_outlined,
+                                    keyboardType: TextInputType.phone,
+                                    validator: (v) {
+                                      if (v == null || v.isEmpty)
+                                        return 'الرجاء إدخال رقم الهاتف';
+                                      return null;
                                     },
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: CustomTextField(
-                                controller: _phoneController,
-                                labelText: '77xxxxxxx',
-                                prefixIcon: Icons.phone_android_outlined,
-                                keyboardType: TextInputType.phone,
-                                validator: (v) {
-                                  if (v == null || v.isEmpty)
-                                    return 'الرجاء إدخال رقم الهاتف';
-                                  return null;
-                                },
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 16),
 

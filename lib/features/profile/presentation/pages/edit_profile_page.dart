@@ -47,7 +47,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        foregroundColor: theme.primaryColor,
       ),
       body: BlocConsumer<ProfileCubit, ProfileState>(
         listener: (context, state) {

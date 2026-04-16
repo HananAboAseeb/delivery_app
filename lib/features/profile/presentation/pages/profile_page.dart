@@ -116,7 +116,7 @@ class _ProfileViewState extends State<_ProfileView> {
                     ProfileMenuItem(
                       icon: Icons.person_outline,
                       title: 'بياناتي الشخصية',
-                      subtitle: 'تعديل اسمك وبريدك الإلكتروني',
+                      subtitle: '${profile.name} • ${profile.phone}',
                       onTap: () {
                         Navigator.push(
                             context,

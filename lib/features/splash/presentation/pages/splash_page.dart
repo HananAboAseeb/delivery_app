@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:my_store/features/auth/logic/auth_bloc.dart';
 import 'package:my_store/core/theme/theme_cubit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -13,7 +14,8 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateMixin {
+class _SplashPageState extends State<SplashPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
@@ -26,19 +28,29 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
 
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2200),
+      duration: const Duration(milliseconds: 2600),
     );
 
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: const Interval(0.0, 0.6, curve: Curves.elasticOut)),
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack),
+      ),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: const Interval(0.3, 1.0, curve: Curves.easeIn)),
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.3, 1.0, curve: Curves.easeIn),
+      ),
     );
 
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animationController, curve: const Interval(0.3, 1.0, curve: Curves.easeOutCubic)),
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.3, 1.0, curve: Curves.easeOutCubic),
+      ),
     );
 
     _animationController.forward();
@@ -52,7 +64,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
   }
 
   Future<void> _startSplashLogic() async {
-    await Future.delayed(const Duration(milliseconds: 3500));
+    await Future.delayed(const Duration(milliseconds: 4000));
 
     if (!mounted) return;
 
@@ -91,104 +103,133 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
             width: double.infinity,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFFE65100), // deepOrange(900)
-                  Color(0xFFFF9800), // orange(500)
-                  Color(0xFFFFB74D), // orange(300)
+                  Color(0xFFFFF8F0), // Very light orange, almost white at top
+                  Color(0xFFFFCC80), // light orange
+                  Color(0xFFFF9800), // orange mid
+                  Color(0xFFE65100), // deep orange at bottom
                 ],
-                stops: [0.0, 0.5, 1.0],
+                stops: [0.0, 0.3, 0.65, 1.0],
               ),
             ),
-            child: Center(
-              child: AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Modern Expanding Icon
-                      ScaleTransition(
-                        scale: _scaleAnimation,
-                        child: Container(
-                          padding: const EdgeInsets.all(28),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.15),
-                                blurRadius: 40,
-                                offset: const Offset(0, 20),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.electric_moped_rounded, // Cool Delivery Scooter Icon!
-                            size: 100,
-                            color: Color(0xFFF57C00),
+            child: SafeArea(
+              child: Center(
+                child: AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, child) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Spacer(),
+
+                        // --- Lottie Animation (No white circle) ---
+                        ScaleTransition(
+                          scale: _scaleAnimation,
+                          child: Lottie.asset(
+                            'assets/animation/delivery.json',
+                            width: 220,
+                            height: 220,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.electric_moped_rounded,
+                                size: 120,
+                                color: Color(0xFFE65100),
+                              );
+                            },
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 48),
-                      // Fading and sliding text
-                      FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: SlideTransition(
-                          position: _slideAnimation,
-                          child: Column(
-                            children: [
-                              Text(
-                                'خلك مرتاح',
-                                style: GoogleFonts.cairo(
-                                  fontSize: 48,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                  height: 1.2,
-                                  letterSpacing: 1.5,
-                                  shadows: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    )
-                                  ]
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                child: Text(
-                                  'كل مقاضيك توصلك لمتناول يدك',
+
+                        const SizedBox(height: 52),
+
+                        // --- App Name & Tagline (Fade + Slide In) ---
+                        FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: SlideTransition(
+                            position: _slideAnimation,
+                            child: Column(
+                              children: [
+                                Text(
+                                  'خلك مرتاح',
                                   style: GoogleFonts.cairo(
-                                    fontSize: 16,
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.w900,
                                     color: Colors.white,
-                                    fontWeight: FontWeight.w700,
+                                    height: 1.1,
+                                    letterSpacing: 1.5,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 60),
-                              const SizedBox(
-                                width: 45,
-                                height: 45,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 3.5,
-                                  strokeCap: StrokeCap.round,
+                                const SizedBox(height: 12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 22, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(30),
+                                    border: Border.all(
+                                      color: Colors.white.withOpacity(0.3),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'كل مقاضيك تصل لباب بيتك',
+                                    style: GoogleFonts.cairo(
+                                      fontSize: 13,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                },
+
+                        const Spacer(),
+
+                        // --- Loading Indicator ---
+                        FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 48.0),
+                            child: Column(
+                              children: [
+                                const SizedBox(
+                                  width: 40,
+                                  height: 40,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 3,
+                                    strokeCap: StrokeCap.round,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'جاري التحميل...',
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 13,
+                                    color: Colors.white.withOpacity(0.7),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),

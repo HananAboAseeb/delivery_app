@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../logic/auth_bloc.dart';
 import '../widgets/custom_text_field.dart';
-import '../widgets/social_login_button.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -88,27 +87,7 @@ class LoginPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const SizedBox(height: 16),
-                        // --- Logo Logo ---
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.adjust_rounded,
-                                color: theme.primaryColor, size: 28),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'WASL',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1.2,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: size.height * 0.18),
+                        SizedBox(height: size.height * 0.15),
 
                         // --- Titles ---
                         const Text(
@@ -125,7 +104,7 @@ class LoginPage extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24.0),
                           child: Text(
-                            'الرجاء إدخال بياناتك للوصول إلى لوحة التحكم',
+                            'الرجاء إدخال بياناتك للوصول إلى حسابك',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 14,
@@ -139,12 +118,12 @@ class LoginPage extends StatelessWidget {
                         Divider(color: Colors.grey.shade200, thickness: 1),
                         const SizedBox(height: 24),
 
-                        // --- Email Input ---
-                        _buildLabel('البريد الإلكتروني'),
+                        // --- Username Input ---
+                        _buildLabel('اسم المستخدم'),
                         CustomTextField(
                           controller: _emailController,
-                          labelText: 'admin@wasl.com', // Hint style
-                          prefixIcon: Icons.email_outlined,
+                          labelText: 'ادخل اسم المستخدم', 
+                          prefixIcon: Icons.person_outline,
                         ),
                         const SizedBox(height: 20),
 
@@ -226,54 +205,34 @@ class LoginPage extends StatelessWidget {
                         const SizedBox(height: 16),
                         TextButton(
                           onPressed: () => context.push('/register'),
-                          child: const Text('ليس لديك حساب؟ إنشاء حساب جديد'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.grey.shade600,
+                          ),
+                          child: const Text('ليس لديك حساب؟ إنشاء حساب جديد', style: TextStyle(fontWeight: FontWeight.w600)),
                         ),
 
                         const SizedBox(height: 16),
 
-                        // --- Social Login Section ---
-                        Row(
-                          children: [
-                            Expanded(
-                                child: Divider(
-                                    color: Colors.grey.shade300, thickness: 1)),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              child: Text(
-                                'أو تسجيل الدخول عبر',
-                                style: TextStyle(
-                                    color: Colors.grey.shade400,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600),
-                              ),
+                        // --- Guest Login Button (Disabled for security) ---
+                        OutlinedButton.icon(
+                          onPressed: null, // Disabled for security
+                          icon: Icon(Icons.person_pin_circle_rounded, color: Colors.grey.shade400),
+                          label: const Text(
+                            'الدخول كزائر',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
                             ),
-                            Expanded(
-                                child: Divider(
-                                    color: Colors.grey.shade300, thickness: 1)),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SocialLoginButton(
-                              icon: Icons.g_mobiledata_rounded,
-                              iconColor: Colors.red.shade600,
-                              onTap: () {},
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.grey.shade400,
+                            disabledForegroundColor: Colors.grey.shade400,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
                             ),
-                            const SizedBox(width: 16),
-                            SocialLoginButton(
-                              icon: Icons.apple,
-                              onTap: () {},
-                            ),
-                            const SizedBox(width: 16),
-                            SocialLoginButton(
-                              icon: Icons.facebook,
-                              iconColor: Colors.blue.shade700,
-                              onTap: () {},
-                            ),
-                          ],
+                          ),
                         ),
                         const SizedBox(height: 48),
                       ],

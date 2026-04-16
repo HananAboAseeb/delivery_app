@@ -13,34 +13,35 @@ class _OffersSliderState extends State<OffersSlider> {
   int _currentPage = 0;
   Timer? _timer;
 
-  final List<Map<String, String>> _offers = [
+  // Modern Split-style cards with highly reliable FlatIcon transparent PNGs
+  final List<Map<String, dynamic>> _offers = [
     {
-      'title': 'الرابط قد تكون أنت!',
-      'action': 'اطلب بـ 2,000 ريال',
-      'icon': 'local_offer',
-      'image':
-          'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=600&auto=format&fit=crop', // Burger/Pizza backdrop
+      'title': 'احصل على',
+      'highlight': 'خصم 20%',
+      'action': 'استمتع بتوصيل مجاني لطلبك الأول',
+      'image': 'https://cdn-icons-png.flaticon.com/512/3014/3014502.png', // Premium transparent Burger
+      'plateOffset': const Offset(10, 0),
     },
     {
-      'title': 'خصم 35% للجميع',
-      'action': 'تصفح العروض',
-      'icon': 'directions_bike',
-      'image':
-          'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?q=80&w=600&auto=format&fit=crop', // Chicken/Grill
+      'title': 'وجبتك المفضلة',
+      'highlight': 'خصم 35%',
+      'action': 'تصفح أشهى العروض الآن',
+      'image': 'https://cdn-icons-png.flaticon.com/512/3014/3014491.png', // Premium transparent Pizza
+      'plateOffset': const Offset(10, 0),
     },
     {
-      'title': 'توصيل مجاني لأول طلب',
-      'action': 'استخدم الكود',
-      'icon': 'restaurant',
-      'image':
-          'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=600&auto=format&fit=crop', // Coffee
+      'title': 'طبق اليوم',
+      'highlight': 'توصيل مجاني',
+      'action': 'اطلب أكثر من 3000 ريال',
+      'image': 'https://cdn-icons-png.flaticon.com/512/3014/3014488.png', // Premium transparent Chicken
+      'plateOffset': const Offset(10, 0),
     },
   ];
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(viewportFraction: 0.9);
+    _pageController = PageController(viewportFraction: 0.93);
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
       if (_currentPage < _offers.length - 1) {
         _currentPage++;
@@ -50,8 +51,8 @@ class _OffersSliderState extends State<OffersSlider> {
       if (_pageController.hasClients) {
         _pageController.animateToPage(
           _currentPage,
-          duration: const Duration(milliseconds: 350),
-          curve: Curves.easeIn,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
         );
       }
     });
@@ -64,25 +65,14 @@ class _OffersSliderState extends State<OffersSlider> {
     super.dispose();
   }
 
-  IconData _getIconData(String name) {
-    switch (name) {
-      case 'local_offer':
-        return Icons.local_offer;
-      case 'directions_bike':
-        return Icons.directions_bike;
-      case 'restaurant':
-        return Icons.restaurant;
-      default:
-        return Icons.star;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
       children: [
         SizedBox(
-          height: 140,
+          height: 160,
           child: PageView.builder(
             controller: _pageController,
             onPageChanged: (int page) {
@@ -93,95 +83,97 @@ class _OffersSliderState extends State<OffersSlider> {
             itemCount: _offers.length,
             itemBuilder: (context, index) {
               final offer = _offers[index];
-              final theme = Theme.of(context);
+              
               return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 6),
                 decoration: BoxDecoration(
-                  color: theme.primaryColor,
                   borderRadius: BorderRadius.circular(20),
+                  // Using matching app color for all sliders! No heavy gradients.
+                  color: theme.primaryColor,
                   boxShadow: [
                     BoxShadow(
                       color: theme.primaryColor.withOpacity(0.3),
                       blurRadius: 10,
-                      offset: const Offset(0, 5),
+                      offset: const Offset(0, 4),
                     )
                   ],
-                  // Use the background image with a color filter overlay to maintain brand!
-                  image: DecorationImage(
-                    image: NetworkImage(offer['image']!),
-                    fit: BoxFit.cover,
-                    colorFilter: ColorFilter.mode(
-                      theme.primaryColor.withOpacity(0.7), // Single color wash
-                      BlendMode.srcOver,
-                    ),
-                  ),
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 6,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Stack(
+                    children: [
+                      // Decorative subtle sunburst/stripes effect representing the background art
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: _SunburstPainter(),
+                        ),
+                      ),
+                      
+                      // Food Image (Transparent PNG seamlessly integrated)
+                      Positioned(
+                        left: offer['plateOffset'].dx,
+                        top: offer['plateOffset'].dy,
+                        bottom: -offer['plateOffset'].dy,
+                        width: 140, // Scaled better for FlatIcon
+                        child: Center(
+                          child: Image.network(
+                            offer['image'],
+                            width: 130,
+                            height: 130,
+                            fit: BoxFit.contain, // Maintain Aspect Ratio of PNG nicely
+                          ),
+                        ),
+                      ),
+                      
+                      // Typography Content (RTL Aligned to Right)
+                      Positioned(
+                        right: 20,
+                        top: 20,
+                        bottom: 20,
+                        width: MediaQuery.of(context).size.width * 0.45,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              offer['title']!,
+                              offer['title'],
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              offer['highlight'],
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 18,
+                                fontSize: 26,
                                 fontWeight: FontWeight.w900,
-                                height: 1.4,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              offer['action'],
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 11,
+                                height: 1.3,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const Spacer(),
-                            InkWell(
-                              onTap: () {},
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 2))
-                                  ],
-                                ),
-                                child: Text(
-                                  offer['action']!,
-                                  style: TextStyle(
-                                    color: theme.primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 4,
-                      child: Icon(
-                        _getIconData(offer['icon']!),
-                        size: 80,
-                        color: Colors.white.withOpacity(0.15),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
@@ -189,11 +181,11 @@ class _OffersSliderState extends State<OffersSlider> {
             (index) => AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               margin: const EdgeInsets.symmetric(horizontal: 4),
-              height: 8,
-              width: _currentPage == index ? 24 : 8,
+              height: 6,
+              width: _currentPage == index ? 24 : 6,
               decoration: BoxDecoration(
                 color: _currentPage == index
-                    ? Theme.of(context).primaryColor
+                    ? theme.primaryColor
                     : Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(4),
               ),
@@ -203,4 +195,32 @@ class _OffersSliderState extends State<OffersSlider> {
       ],
     );
   }
+}
+
+// A custom painter to draw subtle starburst rays
+class _SunburstPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.04)
+      ..style = PaintingStyle.fill;
+
+    final center = Offset(size.width * 0.2, size.height * 0.5);
+    final path = Path();
+
+    for (int i = 0; i < 36; i += 2) {
+      final angle1 = i * 10 * 3.14159 / 180;
+      final angle2 = (i + 1) * 10 * 3.14159 / 180;
+      
+      path.moveTo(center.dx, center.dy);
+      path.lineTo(center.dx + 400 * 1, center.dy + 400 * angle1);
+      path.lineTo(center.dx + 400 * 1, center.dy + 400 * angle2);
+      path.close();
+    }
+    
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
