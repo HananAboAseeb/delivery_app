@@ -38,19 +38,18 @@ class _HomeAppBarState extends State<HomeAppBar> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // Well-balanced height to ensure it sits safely below the notch and holds the UI perfectly
     return SliverAppBar(
       pinned: true,
       backgroundColor: theme.primaryColor,
-      // Increased height slightly to accommodate bottom padding below search bar
       expandedHeight: 185, 
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           children: [
-            // Solid Brand Background
             Container(color: theme.primaryColor),
             
-            // Decorative transparent lighter orange circles for a premium touch
+            // Decorative transparent lighter orange circles
             Positioned(
               top: -30,
               right: -50,
@@ -75,26 +74,17 @@ class _HomeAppBarState extends State<HomeAppBar> {
                 ),
               ),
             ),
-            Positioned(
-              bottom: -40,
-              left: -20,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.06),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
 
             SafeArea(
+              bottom: false,
               child: Column(
+                // This ensures everything stays grouped beautifully at the bottom, 
+                // heavily running away from the top status bar/notch!
+                mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Top Row: Avatar & Name (RTL Right) and Cart (RTL Left)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -111,13 +101,13 @@ class _HomeAppBarState extends State<HomeAppBar> {
                                   border: Border.all(color: Colors.white.withOpacity(0.8), width: 2),
                                 ),
                                 child: CircleAvatar(
-                                  radius: 22,
+                                  radius: 20, 
                                   backgroundColor: Colors.white.withOpacity(0.2),
                                   backgroundImage: _avatarUrl.isNotEmpty ? NetworkImage(_avatarUrl) : null,
-                                  child: _avatarUrl.isEmpty ? const Icon(Icons.person_rounded, color: Colors.white) : null,
+                                  child: _avatarUrl.isEmpty ? const Icon(Icons.person_rounded, size: 22, color: Colors.white) : null,
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 10), 
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -125,11 +115,11 @@ class _HomeAppBarState extends State<HomeAppBar> {
                                     'مرحباً بك، $_userName',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                      fontSize: 15, 
                                       color: Colors.white,
                                     ),
                                   ),
-                                  const SizedBox(height: 2),
+                                  const SizedBox(height: 1),
                                   Row(
                                     children: [
                                       Icon(Icons.location_on_rounded, color: Colors.white.withOpacity(0.8), size: 14),
@@ -150,15 +140,14 @@ class _HomeAppBarState extends State<HomeAppBar> {
                           ),
                         ),
                         
-                        // Cart Icon (Transparent border with white icon)
+                        // Cart Icon
                         GestureDetector(
                           onTap: () => context.push('/cart'),
                           child: Container(
-                            padding: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(8), 
                             decoration: BoxDecoration(
-                              // Using transparent box with a white bordered outline according to user feedback
                               border: Border.all(color: Colors.white.withOpacity(0.8), width: 1.5),
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.05),
@@ -167,20 +156,23 @@ class _HomeAppBarState extends State<HomeAppBar> {
                                 )
                               ]
                             ),
-                            // Standard shopping cart icon with white color!
-                            child: const Icon(Icons.shopping_cart_rounded, color: Colors.white, size: 22),
+                            child: const Icon(Icons.shopping_cart_rounded, color: Colors.white, size: 20),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const Spacer(),
-                  // Search Bar with padding so it never touches the edges!
+
+                  // Strict, beautiful fixed distance between Avatar and Search Bar (Not too far, not too close)
+                  const SizedBox(height: 20),
+                  
+                  // Search Bar
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: _SearchBar(focusNode: widget.searchFocusNode, theme: theme),
                   ),
-                  // This SizedBox creates the elevated orange gap between the search bar and the edge of the AppBar!
+                  
+                  // Gap between the search bar and the white edge curve beneath it
                   const SizedBox(height: 24), 
                 ],
               ),
@@ -230,7 +222,6 @@ class _SearchBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Filter Icon 
           Icon(Icons.tune_rounded, color: theme.primaryColor, size: 22),
           const SizedBox(width: 12),
           Container(width: 1, height: 20, color: Colors.grey.shade300),
@@ -250,7 +241,6 @@ class _SearchBar extends StatelessWidget {
               ),
             ),
           ),
-          // Search Icon
           Icon(Icons.search_rounded, color: theme.primaryColor, size: 24),
         ],
       ),

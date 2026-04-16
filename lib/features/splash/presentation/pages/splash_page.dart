@@ -106,10 +106,10 @@ class _SplashPageState extends State<SplashPage>
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFFFFF8F0), // Very light orange, almost white at top
-                  Color(0xFFFFCC80), // light orange
-                  Color(0xFFFF9800), // orange mid
-                  Color(0xFFE65100), // deep orange at bottom
+                  Color(0xFFFFF3E0), // orange 50 - Very light
+                  Color(0xFFFFE0B2), // orange 100
+                  Color(0xFFFFB74D), // orange 300
+                  Color(0xFFE65100), // Primary Color - exactly matching app theme
                 ],
                 stops: [0.0, 0.3, 0.65, 1.0],
               ),
@@ -142,7 +142,8 @@ class _SplashPageState extends State<SplashPage>
                           ),
                         ),
 
-                        const SizedBox(height: 52),
+                        // Decreased distance based on user suggestion
+                        const SizedBox(height: 24),
 
                         // --- App Name & Tagline (Fade + Slide In) ---
                         FadeTransition(

@@ -38,9 +38,39 @@ class LoginPage extends StatelessWidget {
           if (state is AuthAuthenticated) {
             context.go('/home');
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+             String errorMsg = 'حدث خطأ غير متوقع. يرجى المحاولة لاحقاً';
+             final rawMsg = state.message.toLowerCase();
+             
+             // Advanced robust parsing to strictly enforce error categories
+             if (rawMsg.contains('401') || rawMsg.contains('unauthorized') || rawMsg.contains('400') || rawMsg.contains('bad request')) {
+                // Typical API rejection for wrong User/Pass
+                errorMsg = 'تأكد من صحة اسم المستخدم أو كلمة المرور';
+             } else if (rawMsg.contains('404')) {
+                errorMsg = 'اسم المستخدم غير موجود لدينا';
+             } else if (rawMsg.contains('socketexception') || rawMsg.contains('handshake') || rawMsg.contains('os error') || rawMsg.contains('timeout')) {
+                // Accurate detection of zero-internet connection drops (avoiding generic words)
+                errorMsg = 'لا يوجد اتصال بالإنترنت، يرجى تفعيل الشبكة والمحاولة مجدداً';
+             } else if (rawMsg.contains('server') || rawMsg.contains('500')) {
+                errorMsg = 'يوجد ضغط أو مشكلة مؤقتة في الخادم، جرب لاحقاً';
+             } else {
+                errorMsg = 'تأكد من صحة البيانات أو من استقرار الاتصال';
+             }
+             
+             ScaffoldMessenger.of(context).showSnackBar(
+               SnackBar(
+                 content: Row(
+                    children: [
+                       const Icon(Icons.error_outline_rounded, color: Colors.white, size: 28),
+                       const SizedBox(width: 12),
+                       Expanded(child: Text(errorMsg, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white))),
+                    ],
+                 ),
+                 backgroundColor: Colors.red.shade700,
+                 behavior: SnackBarBehavior.floating,
+                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                 duration: const Duration(seconds: 4),
+               ),
+             );
           }
         },
         builder: (context, state) {

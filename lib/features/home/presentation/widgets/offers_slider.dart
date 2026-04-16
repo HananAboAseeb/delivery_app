@@ -13,28 +13,25 @@ class _OffersSliderState extends State<OffersSlider> {
   int _currentPage = 0;
   Timer? _timer;
 
-  // Modern Split-style cards with highly reliable FlatIcon transparent PNGs
+  // Modern Split-style cards with fresh beautiful photos and realistic promotional text
   final List<Map<String, dynamic>> _offers = [
     {
-      'title': 'احصل على',
-      'highlight': 'خصم 20%',
-      'action': 'استمتع بتوصيل مجاني لطلبك الأول',
-      'image': 'https://cdn-icons-png.flaticon.com/512/3014/3014502.png', // Premium transparent Burger
-      'plateOffset': const Offset(10, 0),
+      'title': 'طازج وسريع',
+      'highlight': 'خصم 30%',
+      'action': 'على أول طلب لك من قسم اللحوم والخضار',
+      'image': 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&w=600&q=80',
     },
     {
-      'title': 'وجبتك المفضلة',
-      'highlight': 'خصم 35%',
-      'action': 'تصفح أشهى العروض الآن',
-      'image': 'https://cdn-icons-png.flaticon.com/512/3014/3014491.png', // Premium transparent Pizza
-      'plateOffset': const Offset(10, 0),
-    },
-    {
-      'title': 'طبق اليوم',
+      'title': 'ألذ الوجبات',
       'highlight': 'توصيل مجاني',
-      'action': 'اطلب أكثر من 3000 ريال',
-      'image': 'https://cdn-icons-png.flaticon.com/512/3014/3014488.png', // Premium transparent Chicken
-      'plateOffset': const Offset(10, 0),
+      'action': 'أطلب من مطعمك المفضل بضغطة زر',
+      'image': 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=600&q=80',
+    },
+    {
+      'title': 'مقاضي البيت',
+      'highlight': 'لباب بيتك',
+      'action': 'كل ما يحتاجه منزلك نوفره لك في أسرع وقت',
+      'image': 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=600&q=80',
     },
   ];
 
@@ -88,11 +85,10 @@ class _OffersSliderState extends State<OffersSlider> {
                 margin: const EdgeInsets.symmetric(horizontal: 6),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  // Using matching app color for all sliders! No heavy gradients.
-                  color: theme.primaryColor,
+                  color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: theme.primaryColor.withOpacity(0.3),
+                      color: Colors.black.withOpacity(0.08),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     )
@@ -102,30 +98,35 @@ class _OffersSliderState extends State<OffersSlider> {
                   borderRadius: BorderRadius.circular(20),
                   child: Stack(
                     children: [
-                      // Decorative subtle sunburst/stripes effect representing the background art
+                      // 1. Full Background Real Image (Completly pure original colors!)
                       Positioned.fill(
-                        child: CustomPaint(
-                          painter: _SunburstPainter(),
+                        child: Image.network(
+                          offer['image'],
+                          fit: BoxFit.cover,
                         ),
                       ),
                       
-                      // Food Image (Transparent PNG seamlessly integrated)
-                      Positioned(
-                        left: offer['plateOffset'].dx,
-                        top: offer['plateOffset'].dy,
-                        bottom: -offer['plateOffset'].dy,
-                        width: 140, // Scaled better for FlatIcon
-                        child: Center(
-                          child: Image.network(
-                            offer['image'],
-                            width: 130,
-                            height: 130,
-                            fit: BoxFit.contain, // Maintain Aspect Ratio of PNG nicely
+                      // 2. Cinematic Soft Dark Shadow exclusively behind the text (Netflix style)
+                      // This avoids ANY orange tint entirely, perfectly preserving the image 
+                      // while making the white text pop phenomenally well!
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.centerRight,
+                              end: Alignment.centerLeft,
+                              colors: [
+                                Colors.black.withOpacity(0.75), // Solid dark at the text start
+                                Colors.black.withOpacity(0.4),  // fading nicely
+                                Colors.black.withOpacity(0.0),  // complete transparency for the remaining 60% of the image
+                              ],
+                              stops: const [0.0, 0.45, 0.7], 
+                            ),
                           ),
                         ),
                       ),
                       
-                      // Typography Content (RTL Aligned to Right)
+                      // 3. Crisp Typography 
                       Positioned(
                         right: 20,
                         top: 20,
@@ -138,9 +139,9 @@ class _OffersSliderState extends State<OffersSlider> {
                             Text(
                               offer['title'],
                               style: const TextStyle(
-                                color: Colors.white70,
+                                color: Colors.white70, // Slightly silver to contrast beautifully
                                 fontSize: 13,
-                                fontWeight: FontWeight.normal,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -150,14 +151,17 @@ class _OffersSliderState extends State<OffersSlider> {
                                 color: Colors.white,
                                 fontSize: 26,
                                 fontWeight: FontWeight.w900,
+                                height: 1.2,
+                                letterSpacing: 0.5,
                               ),
                             ),
                             const SizedBox(height: 6),
                             Text(
                               offer['action'],
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withOpacity(0.95),
                                 fontSize: 11,
+                                fontWeight: FontWeight.normal,
                                 height: 1.3,
                               ),
                               maxLines: 2,
@@ -195,32 +199,4 @@ class _OffersSliderState extends State<OffersSlider> {
       ],
     );
   }
-}
-
-// A custom painter to draw subtle starburst rays
-class _SunburstPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withOpacity(0.04)
-      ..style = PaintingStyle.fill;
-
-    final center = Offset(size.width * 0.2, size.height * 0.5);
-    final path = Path();
-
-    for (int i = 0; i < 36; i += 2) {
-      final angle1 = i * 10 * 3.14159 / 180;
-      final angle2 = (i + 1) * 10 * 3.14159 / 180;
-      
-      path.moveTo(center.dx, center.dy);
-      path.lineTo(center.dx + 400 * 1, center.dy + 400 * angle1);
-      path.lineTo(center.dx + 400 * 1, center.dy + 400 * angle2);
-      path.close();
-    }
-    
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
