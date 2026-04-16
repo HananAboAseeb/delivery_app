@@ -38,11 +38,11 @@ class _HomeAppBarState extends State<HomeAppBar> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Well-balanced height to ensure it sits safely below the notch and holds the UI perfectly
+    // Well-balanced compact height to pull elements up nicely
     return SliverAppBar(
       pinned: true,
       backgroundColor: theme.primaryColor,
-      expandedHeight: 185, 
+      expandedHeight: 155, 
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
@@ -77,104 +77,105 @@ class _HomeAppBarState extends State<HomeAppBar> {
 
             SafeArea(
               bottom: false,
-              child: Column(
-                // This ensures everything stays grouped beautifully at the bottom, 
-                // heavily running away from the top status bar/notch!
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Profile Info
-                        GestureDetector(
-                          onTap: () => context.push('/profile'),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white.withOpacity(0.8), width: 2),
-                                ),
-                                child: CircleAvatar(
-                                  radius: 20, 
-                                  backgroundColor: Colors.white.withOpacity(0.2),
-                                  backgroundImage: _avatarUrl.isNotEmpty ? NetworkImage(_avatarUrl) : null,
-                                  child: _avatarUrl.isEmpty ? const Icon(Icons.person_rounded, size: 22, color: Colors.white) : null,
-                                ),
-                              ),
-                              const SizedBox(width: 10), 
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'مرحباً بك، $_userName',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15, 
-                                      color: Colors.white,
-                                    ),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8.0), // Tiny distance from the raw top notch
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start, // Push everything to the TOP!
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Profile Info
+                          GestureDetector(
+                            onTap: () => context.push('/profile'),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white.withOpacity(0.8), width: 2),
                                   ),
-                                  const SizedBox(height: 1),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.location_on_rounded, color: Colors.white.withOpacity(0.8), size: 14),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        'اليمن، صنعاء',
-                                        style: TextStyle(
-                                          fontSize: 12, 
-                                          color: Colors.white.withOpacity(0.9),
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                  child: CircleAvatar(
+                                    radius: 18, 
+                                    backgroundColor: Colors.white.withOpacity(0.2),
+                                    backgroundImage: _avatarUrl.isNotEmpty ? NetworkImage(_avatarUrl) : null,
+                                    child: _avatarUrl.isEmpty ? const Icon(Icons.person_rounded, size: 20, color: Colors.white) : null,
+                                  ),
+                                ),
+                                const SizedBox(width: 8), 
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'مرحباً بك، $_userName',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 14, 
+                                        color: Colors.white,
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        
-                        // Cart Icon
-                        GestureDetector(
-                          onTap: () => context.push('/cart'),
-                          child: Container(
-                            padding: const EdgeInsets.all(8), 
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.white.withOpacity(0.8), width: 1.5),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                )
-                              ]
+                                    ),
+                                    const SizedBox(height: 1),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.location_on_rounded, color: Colors.white.withOpacity(0.8), size: 12),
+                                        const SizedBox(width: 2),
+                                        Text(
+                                          'اليمن، صنعاء',
+                                          style: TextStyle(
+                                            fontSize: 11, 
+                                            color: Colors.white.withOpacity(0.9),
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                            child: const Icon(Icons.shopping_cart_rounded, color: Colors.white, size: 20),
                           ),
-                        ),
-                      ],
+                          
+                          // Cart Icon
+                          GestureDetector(
+                            onTap: () => context.push('/cart'),
+                            child: Container(
+                              padding: const EdgeInsets.all(7), 
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.white.withOpacity(0.8), width: 1.2),
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  )
+                                ]
+                              ),
+                              child: const Icon(Icons.shopping_cart_rounded, color: Colors.white, size: 18),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
 
-                  // Strict, beautiful fixed distance between Avatar and Search Bar (Not too far, not too close)
-                  const SizedBox(height: 20),
-                  
-                  // Search Bar
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: _SearchBar(focusNode: widget.searchFocusNode, theme: theme),
-                  ),
-                  
-                  // Gap between the search bar and the white edge curve beneath it
-                  const SizedBox(height: 24), 
-                ],
+                    // Optimal fixed distance between Avatar and Search Bar (brings them closer)
+                    const SizedBox(height: 14),
+                    
+                    // Search Bar
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _SearchBar(focusNode: widget.searchFocusNode, theme: theme),
+                    ),
+                    
+                    // Creates a larger solid orange gap under the search bar so it rises from the edge!
+                    const SizedBox(height: 26), 
+                  ],
+                ),
               ),
             ),
           ],

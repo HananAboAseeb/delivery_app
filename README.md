@@ -1,16 +1,91 @@
-# my_store
+<div align="center">
+  <img src="assets/images/delivery_boy.png" width="150" alt="WASL Logo">
+  
+  # تطبيق وصّل 🚀
+  
+  **كل مقاضيك تصل لباب بيتك.. خلك مرتاح!**
+  
+  <p>
+    تطبيق <b>وصّل (WASL)</b> هو منصة توصيل ومتاجر عصرية ومتكاملة، تهدف لتوفير أجمل تجربة مستخدم (UI/UX) مع أداء صاروخي عبر واجهة مبنية بإطار عمل <b>Flutter</b>، مربوطة بواجهة خلفية قوية مبنية على نظام IdentityServer لضمان أعلى درجات الأمان والموثوقية.
+  </p>
 
-A new Flutter project.
+</div>
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🌟 الميزات الرئيسية (Features)
 
-A few resources to get you started if this is your first Flutter project:
+*   **🔒 مصادقة آمنة وحقيقية:** تسجيل الدخول والاشتراك مربوط مباشرة بنظام `IdentityServer4` العالي الأمان، مع إدارة تفصيلية لرموز المرور `Access Tokens` و `Refresh Tokens`.
+*   **🛒 واجهة مستخدم مذهلة (Premium UI):** تصميم حديث وعصري يدعم الوضع النهاري والليلي، مع أنيميشن سلس باستخدام `Lottie` ومكتبات مخصصة، مصمم بعناية فائقة وتنسيق متوافق مع اللغة العربية بامتياز (RTL).
+*   **🧭 ملاحة ديناميكية متقدمة:** استخدام مكتبة `GoRouter` الحديثة لإدارة التنقل والمسارات بشكل برمجي واحترافي.
+*   **⚡ أداء ذكي (State Management):** الاعتماد بشكل جذري على معمارية `BLoC / Cubit` لإدارة حالات التطبيق (State Management) لضمان السرعة، المرونة، وعدم إهدار موارد الجهاز.
+*   **🌍 تعدد المتاجر والطلبات:** هيكلية تدعم إتاحة مطاعم وصيدليات ومقاضي البيت كلها في مكان واحد بصورة مرنة.
+*   **📍 إدارة العناوين والمواقع:** القدرة على إضافة وتعديل عناوينك بشكل مريح جداً وبدون أي تداخل في الشاشة (Overflow Free).
+*   **🛡️ استجابة الأخطاء الذكية:** نظام محكم لاعتراض الـ `Exceptions` وترجمتها لنصوص عربية دقيقة (انقطاع الإنترنت، خطأ بكلمة السر، إلخ) دون عرض رسائل برمجية غامضة للمستخدم النهائي.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🛠️ تفاصيل البنية التحتية والمكتبات (Tech Stack)
+
+تم بناء التطبيق باستخدام أحدث التقنيات لضمان معايير الـ `Clean Architecture`:
+
+| التقنية / المكتبة | الاستخدام |
+| :--- | :--- |
+| **Flutter 3.x** | إطار العمل الأساسي للواجهات والمحرك |
+| **Dart** | لغة البرمجة |
+| **Dio** | لإدارة الاتصالات والردود مع الـ API وعمل `Interceptors` |
+| **Flutter Bloc** | النمط المعماري الأساسي للـ State Management |
+| **GoRouter** | للتنقل المبني على الـ URLs (Deep Linking) |
+| **Flutter Secure Storage** | لحفظ الـ Tokens وبيانات المستخدم بسرية منيعة |
+| **Google Fonts** | للخطوط المتميزة والمتنوعة (Cairo) |
+
+---
+
+## 📂 هيكلية المشروع (Project Structure)
+
+نعتمد على هيكلة **Feature-First Architecture** والتي تجعل المشروع قابلاً للتوسع الدائم:
+
+```
+lib/
+├── core/
+│   ├── network/       # إعدادات الـ API والمُعترضات (Interceptors)
+│   ├── theme/         # ألوان التطبيق والأنماط الموحدة
+│   └── usecases/      # الحالات المشتركة
+├── features/          # التقسيم الجذري للميزات
+│   ├── auth/          # كل ما يخص تسجيل الدخول والمصادقة
+│   ├── home/          # الواجهة الرئيسية والعروض والتصنيفات
+│   ├── profile/       # إعدادات المستخدم وبياناته
+│   ├── address/       # المواقع ونظام التوصيل
+│   └── splash/        # شاشات البدء الترحيبية
+├── main.dart          # النبض الأساسي للتطبيق
+```
+
+---
+
+## 🚀 لبيئة التطوير (Getting Started)
+
+تأكد من تنصيب مساحة العمل الخاصة بالفلتر قبل المضي قدماً:
+
+1. **استنساخ المستودع:**
+   ```bash
+   git clone <repository-url>
+   ```
+
+2. **تحميل المكتبات البرمجية:**
+   ```bash
+   flutter pub get
+   ```
+
+3. **تشغيل المشروع:**
+   للتجربة الفورية، قم بتشغيل التطبيق على محاكي الأندرويد أو الـ iOS:
+   ```bash
+   flutter run
+   ```
+
+> [!TIP]
+> **للمطورين:** جميع الـ APIs المعرفة في الكود `core/network/api_client.dart` تحتوي على نظام تجديد آلي للجلسات (Token Refreshing) في حال انتهاء الصلاحية دون أي إزعاج للمستخدم.
+
+---
+<p align="center">
+  بُني بشغف لتوفير أقوى أداء وأجمل تجربة ممكنة 🧡
+</p>

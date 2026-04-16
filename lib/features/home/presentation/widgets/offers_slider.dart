@@ -13,25 +13,25 @@ class _OffersSliderState extends State<OffersSlider> {
   int _currentPage = 0;
   Timer? _timer;
 
-  // Modern Split-style cards with fresh beautiful photos and realistic promotional text
+  // Modern Split-style cards with fresh beautiful vibrant photos and realistic promotional text
   final List<Map<String, dynamic>> _offers = [
     {
       'title': 'طازج وسريع',
       'highlight': 'خصم 30%',
       'action': 'على أول طلب لك من قسم اللحوم والخضار',
-      'image': 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&w=600&q=80',
+      'image': 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80', // Vibrant groceries and greens
     },
     {
       'title': 'ألذ الوجبات',
       'highlight': 'توصيل مجاني',
       'action': 'أطلب من مطعمك المفضل بضغطة زر',
-      'image': 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=600&q=80',
+      'image': 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=600&q=80', // Vibrant hot meal details
     },
     {
       'title': 'مقاضي البيت',
       'highlight': 'لباب بيتك',
       'action': 'كل ما يحتاجه منزلك نوفره لك في أسرع وقت',
-      'image': 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=600&q=80',
+      'image': 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=600&q=80', // Colorful supermarket
     },
   ];
 
@@ -106,27 +106,9 @@ class _OffersSliderState extends State<OffersSlider> {
                         ),
                       ),
                       
-                      // 2. Cinematic Soft Dark Shadow exclusively behind the text (Netflix style)
-                      // This avoids ANY orange tint entirely, perfectly preserving the image 
-                      // while making the white text pop phenomenally well!
-                      Positioned.fill(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.centerRight,
-                              end: Alignment.centerLeft,
-                              colors: [
-                                Colors.black.withOpacity(0.75), // Solid dark at the text start
-                                Colors.black.withOpacity(0.4),  // fading nicely
-                                Colors.black.withOpacity(0.0),  // complete transparency for the remaining 60% of the image
-                              ],
-                              stops: const [0.0, 0.45, 0.7], 
-                            ),
-                          ),
-                        ),
-                      ),
-                      
-                      // 3. Crisp Typography 
+                      // 2. Crisp Typography with Cinematic Text-Shadows 
+                      // This avoids ANY colored tint entirely on the image, perfectly preserving the photo 
+                      // while making the white text pop phenomenally well securely!
                       Positioned(
                         right: 20,
                         top: 20,
@@ -139,9 +121,13 @@ class _OffersSliderState extends State<OffersSlider> {
                             Text(
                               offer['title'],
                               style: const TextStyle(
-                                color: Colors.white70, // Slightly silver to contrast beautifully
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                shadows: [
+                                  Shadow(color: Colors.black87, blurRadius: 6, offset: Offset(0, 1)),
+                                  Shadow(color: Colors.black54, blurRadius: 10),
+                                ],
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -153,16 +139,23 @@ class _OffersSliderState extends State<OffersSlider> {
                                 fontWeight: FontWeight.w900,
                                 height: 1.2,
                                 letterSpacing: 0.5,
+                                shadows: [
+                                  Shadow(color: Colors.black, blurRadius: 8, offset: Offset(0, 2)),
+                                  Shadow(color: Colors.black87, blurRadius: 15),
+                                ],
                               ),
                             ),
                             const SizedBox(height: 6),
                             Text(
                               offer['action'],
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.95),
-                                fontSize: 11,
-                                fontWeight: FontWeight.normal,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
                                 height: 1.3,
+                                shadows: [
+                                  Shadow(color: Colors.black87, blurRadius: 6, offset: Offset(0, 1)),
+                                ],
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
