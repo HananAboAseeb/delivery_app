@@ -1,91 +1,80 @@
-<div align="center">
-  <img src="assets/images/delivery_boy.png" width="150" alt="WASL Logo">
-  
-  # تطبيق وصّل 🚀
-  
-  **كل مقاضيك تصل لباب بيتك.. خلك مرتاح!**
-  
-  <p>
-    تطبيق <b>وصّل (WASL)</b> هو منصة توصيل ومتاجر عصرية ومتكاملة، تهدف لتوفير أجمل تجربة مستخدم (UI/UX) مع أداء صاروخي عبر واجهة مبنية بإطار عمل <b>Flutter</b>، مربوطة بواجهة خلفية قوية مبنية على نظام IdentityServer لضمان أعلى درجات الأمان والموثوقية.
-  </p>
+# WASL — Delivery App 🚀
 
-</div>
+> **"Relax, we've got it delivered."**  
+> A modern, full-featured delivery application built with Flutter.
 
 ---
 
-## 🌟 الميزات الرئيسية (Features)
+## Overview
 
-*   **🔒 مصادقة آمنة وحقيقية:** تسجيل الدخول والاشتراك مربوط مباشرة بنظام `IdentityServer4` العالي الأمان، مع إدارة تفصيلية لرموز المرور `Access Tokens` و `Refresh Tokens`.
-*   **🛒 واجهة مستخدم مذهلة (Premium UI):** تصميم حديث وعصري يدعم الوضع النهاري والليلي، مع أنيميشن سلس باستخدام `Lottie` ومكتبات مخصصة، مصمم بعناية فائقة وتنسيق متوافق مع اللغة العربية بامتياز (RTL).
-*   **🧭 ملاحة ديناميكية متقدمة:** استخدام مكتبة `GoRouter` الحديثة لإدارة التنقل والمسارات بشكل برمجي واحترافي.
-*   **⚡ أداء ذكي (State Management):** الاعتماد بشكل جذري على معمارية `BLoC / Cubit` لإدارة حالات التطبيق (State Management) لضمان السرعة، المرونة، وعدم إهدار موارد الجهاز.
-*   **🌍 تعدد المتاجر والطلبات:** هيكلية تدعم إتاحة مطاعم وصيدليات ومقاضي البيت كلها في مكان واحد بصورة مرنة.
-*   **📍 إدارة العناوين والمواقع:** القدرة على إضافة وتعديل عناوينك بشكل مريح جداً وبدون أي تداخل في الشاشة (Overflow Free).
-*   **🛡️ استجابة الأخطاء الذكية:** نظام محكم لاعتراض الـ `Exceptions` وترجمتها لنصوص عربية دقيقة (انقطاع الإنترنت، خطأ بكلمة السر، إلخ) دون عرض رسائل برمجية غامضة للمستخدم النهائي.
+**WASL** is a premium Flutter delivery application that connects users with local stores and restaurants, enabling seamless order placement, real-time tracking, and fast doorstep delivery — all wrapped in a beautiful, RTL-ready Arabic UI.
 
 ---
 
-## 🛠️ تفاصيل البنية التحتية والمكتبات (Tech Stack)
+## Features
 
-تم بناء التطبيق باستخدام أحدث التقنيات لضمان معايير الـ `Clean Architecture`:
-
-| التقنية / المكتبة | الاستخدام |
-| :--- | :--- |
-| **Flutter 3.x** | إطار العمل الأساسي للواجهات والمحرك |
-| **Dart** | لغة البرمجة |
-| **Dio** | لإدارة الاتصالات والردود مع الـ API وعمل `Interceptors` |
-| **Flutter Bloc** | النمط المعماري الأساسي للـ State Management |
-| **GoRouter** | للتنقل المبني على الـ URLs (Deep Linking) |
-| **Flutter Secure Storage** | لحفظ الـ Tokens وبيانات المستخدم بسرية منيعة |
-| **Google Fonts** | للخطوط المتميزة والمتنوعة (Cairo) |
+- 🔐 **Secure Authentication** — Login & registration via IdentityServer4 with token management
+- 🏠 **Smart Home Feed** — Categorized stores, offer sliders, and search
+- 🛒 **Cart & Orders** — Add items, review cart, and place orders
+- 📍 **Address Management** — Add, edit, and delete delivery addresses
+- 👤 **User Profile** — Manage personal info and settings
+- 🌙 **Theme Support** — Light/dark mode via ThemeCubit
+- 🌍 **Full RTL Support** — Designed natively for Arabic users
 
 ---
 
-## 📂 هيكلية المشروع (Project Structure)
+## Tech Stack
 
-نعتمد على هيكلة **Feature-First Architecture** والتي تجعل المشروع قابلاً للتوسع الدائم:
+| Layer | Technology |
+|---|---|
+| Framework | Flutter 3.x / Dart |
+| State Management | Flutter BLoC / Cubit |
+| Navigation | GoRouter |
+| Networking | Dio + Interceptors |
+| Secure Storage | flutter_secure_storage |
+| Fonts | Google Fonts (Cairo) |
+| Architecture | Clean Architecture (Feature-First) |
+
+---
+
+## Project Structure
 
 ```
 lib/
-├── core/
-│   ├── network/       # إعدادات الـ API والمُعترضات (Interceptors)
-│   ├── theme/         # ألوان التطبيق والأنماط الموحدة
-│   └── usecases/      # الحالات المشتركة
-├── features/          # التقسيم الجذري للميزات
-│   ├── auth/          # كل ما يخص تسجيل الدخول والمصادقة
-│   ├── home/          # الواجهة الرئيسية والعروض والتصنيفات
-│   ├── profile/       # إعدادات المستخدم وبياناته
-│   ├── address/       # المواقع ونظام التوصيل
-│   └── splash/        # شاشات البدء الترحيبية
-├── main.dart          # النبض الأساسي للتطبيق
+├── core/           # Network, theme, shared utilities
+├── features/
+│   ├── auth/       # Login & registration
+│   ├── home/       # Home feed, offers, categories
+│   ├── profile/    # User profile & settings
+│   ├── address/    # Address CRUD
+│   ├── cart/       # Shopping cart
+│   └── splash/     # Splash & onboarding
+└── main.dart
 ```
 
 ---
 
-## 🚀 لبيئة التطوير (Getting Started)
+## Getting Started
 
-تأكد من تنصيب مساحة العمل الخاصة بالفلتر قبل المضي قدماً:
+```bash
+# Clone the repository
+git clone https://github.com/your-username/wasl.git
 
-1. **استنساخ المستودع:**
-   ```bash
-   git clone <repository-url>
-   ```
+# Install dependencies
+flutter pub get
 
-2. **تحميل المكتبات البرمجية:**
-   ```bash
-   flutter pub get
-   ```
-
-3. **تشغيل المشروع:**
-   للتجربة الفورية، قم بتشغيل التطبيق على محاكي الأندرويد أو الـ iOS:
-   ```bash
-   flutter run
-   ```
-
-> [!TIP]
-> **للمطورين:** جميع الـ APIs المعرفة في الكود `core/network/api_client.dart` تحتوي على نظام تجديد آلي للجلسات (Token Refreshing) في حال انتهاء الصلاحية دون أي إزعاج للمستخدم.
+# Run the app
+flutter run
+```
 
 ---
-<p align="center">
-  بُني بشغف لتوفير أقوى أداء وأجمل تجربة ممكنة 🧡
-</p>
+
+## License
+
+This project is licensed under the **CC BY-NC 4.0** license.  
+Commercial use is strictly prohibited.  
+See [LICENSE](./LICENSE) for details.
+
+---
+
+<p align="center">Built with ❤️ using Flutter</p>
